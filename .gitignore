@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# workflow (local world data)
+/.workflow-data/
+
 # production
 /build
 

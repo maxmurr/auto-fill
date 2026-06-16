@@ -19,6 +19,7 @@ export async function inspect(
   anchorsPath: string,
   title: string,
 ): Promise<InspectResult> {
+  "use step";
   await runPy("inspect_pdf.py", [pdfPath, anchorsPath]);
   const raw = RawAnchors.parse(
     JSON.parse(await fs.readFile(anchorsPath, "utf8")),

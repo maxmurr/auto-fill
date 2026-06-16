@@ -2,13 +2,17 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import type { NextRequest } from "next/server";
+import { start } from "workflow/api";
 import { jobDir } from "@/lib/autofill/python";
-import { runWorkflow } from "@/lib/autofill/run";
+import { fillWorkflow } from "@/lib/autofill/workflow";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
 
-/** Upload a PDF and stream the fill workflow as NDJSON (one event per line). */
+/**
+ * Upload a PDF and start the durable fill workflow. Returns `{ runId, jobId }`
+ * immediately — progress is streamed separately from `GET /api/autofill/stream`
+ * so a client can disconnect/reconnect and replay the run's event log.
+ */
 export async function POST(req: NextRequest) {
   const form = await req.formData();
   const file = form.get("file");
@@ -33,31 +37,18 @@ export async function POST(req: NextRequest) {
     JSON.stringify({ stem, downloadName: `${stem}_Filled.pdf` }),
   );
 
-  const encoder = new TextEncoder();
-  const line = (ev: unknown) => encoder.encode(JSON.stringify(ev) + "\n");
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      try {
-        for await (const ev of runWorkflow(jobId, pdfPath, stem)) {
-          controller.enqueue(line(ev));
-        }
-      } catch (e) {
-        controller.enqueue(
-          line({
-            type: "error",
-            message: e instanceof Error ? e.message : String(e),
-          }),
-        );
-      } finally {
-        controller.close();
-      }
+  // Paths are resolved here (normal Node) and passed as strings — the workflow
+  // sandbox has no `node:path`.
+  const run = await start(fillWorkflow, [
+    {
+      jobId,
+      pdfPath,
+      anchorsPath: path.join(dir, "anchors.json"),
+      fillsPath: path.join(dir, "fills.json"),
+      outPath: path.join(dir, `${stem}_Filled.pdf`),
+      stem,
     },
-  });
+  ]);
 
-  return new Response(stream, {
-    headers: {
-      "content-type": "application/x-ndjson; charset=utf-8",
-      "cache-control": "no-store",
-    },
-  });
+  return Response.json({ runId: run.runId, jobId });
 }

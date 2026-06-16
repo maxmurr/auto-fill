@@ -7,6 +7,7 @@ export async function stamp(
   spec: OverlaySpec,
   fillsPath: string,
 ): Promise<string> {
+  "use step";
   await fs.writeFile(fillsPath, JSON.stringify(spec, null, 2), "utf8");
   await runPy("overlay_fill.py", [fillsPath]);
   return spec.out;

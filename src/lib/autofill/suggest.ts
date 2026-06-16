@@ -11,6 +11,7 @@ export async function suggestAnswers(
   ins: InspectResult,
   ctx?: string,
 ): Promise<Suggestion> {
+  "use step";
   const fieldLines =
     ins.fields.map((f) => `- ${f.id}: "${f.label}"`).join("\n") || "(none)";
 
