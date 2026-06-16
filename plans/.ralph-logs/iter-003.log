@@ -1,0 +1,11 @@
+Done with `dir1/11_E`. Item verified valid by gate (counted in "filled & valid: 3/21"; no INVALID/TOO_SMALL/NO_OVERLAY). `CHECK_FAIL` is expected — 18 items still `passes:false`.
+
+**Summary — `dir1/11_E`:**
+- Form: SD Guthrie Morakot 16-page *Supplier Self Assessment* (≠ Evershining matrix; new family).
+- Filled: cover header (Siam Agri Feed, Soybean Meal 46%, Domestic, 145 emp, 16/06/2026) on dotted leaders; **GMP+HACCP** certs ticked; **105 Yes ticks** (questions 1.1–28.4, cx=293.3) dead-center in each ☐ box.
+- Left blank: section headers, No/N/A boxes, Total/Earned/%Score, grade legend, contacts, signature, assessor block.
+- Verified: cover + pages 2/6/15/16 + 240-dpi crops of pages 2 & 11 — ticks centered, rows correct.
+- **Skill fix (D2):** `inspect_pdf.py` now detects **glyph checkboxes** (☐ U+2610 & kin via `p.chars`) — it previously reported `checkboxes=0` for this form. Re-run finds 14 cert + ~24/page boxes → dir2/dir3 `11_E` auto-detect next pass.
+- Moved to out path, logged D2 + form-family note, set `passes:true`.
+
+Stop. Loop relaunches for `dir1/19_E`.

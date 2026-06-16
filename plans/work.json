@@ -1,0 +1,191 @@
+[
+  {
+    "id": "dir1/9_E",
+    "base": "data/ตัวอย่างข้อมูล",
+    "src": "data/ตัวอย่างข้อมูล/01_แบบสอบถามยังไม่กรอก/9_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล/ตัวอย่างข้อมูลที่กรอกแล้ว/9_E.pdf",
+    "passes": true,
+    "mock": "Asian Alliance Supplier Agreement; supplier บริษัท ไทยฟีดมิลล์ จำกัด (Thai Feed Mill Co., Ltd.), product ปลาป่น (Fish Meal) โปรตีน 60%, mfg โรงงานสมุทรสาคร, spec RM-FM-009/2026, date 12/06/2026; all 7 clauses ticked Accepted/ยอมรับ; signature/acknowledge/date-of-sign left blank.",
+    "defect": "D1 (plans/defects.md): Workflow tool didn't bind args global → used SKILL.md inline path (inspect→fills.json→overlay_fill.py). No skill script bug."
+  },
+  {
+    "id": "dir1/10_E",
+    "base": "data/ตัวอย่างข้อมูล",
+    "src": "data/ตัวอย่างข้อมูล/01_แบบสอบถามยังไม่กรอก/10_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล/ตัวอย่างข้อมูลที่กรอกแล้ว/10_E.pdf",
+    "passes": true,
+    "mock": "MMP International C-TPAT 2-page security audit (FMMR-027); supplier บริษัท เอเชียโปรตีนฟีด จำกัด (Asia Protein Feed), products กากถั่วเหลือง (Soybean Meal), rep นางสาวปราณี ศรีสุข, audit date 15/06/2026; all 12 sections ticked S (Satisfactory/Score 1, cx≈353.9), one tick per section band; Comment / Inspection-by / Pass-Not Pass boxes left blank.",
+    "defect": "none (see plans/defects.md '10_E = MMP C-TPAT' form-family note for reusable geometry). inspect checkboxes=0 expected for rect-grid matrix; grid derived from gridlines. No skill script bug."
+  },
+  {
+    "id": "dir1/11_E",
+    "base": "data/ตัวอย่างข้อมูล",
+    "src": "data/ตัวอย่างข้อมูล/01_แบบสอบถามยังไม่กรอก/11_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล/ตัวอย่างข้อมูลที่กรอกแล้ว/11_E.pdf",
+    "passes": true,
+    "mock": "SD Guthrie Morakot 16-page Supplier Self Assessment (PR-02-00-16); supplier บริษัท สยามอกริฟีด จำกัด (Siam Agri Feed), product กากถั่วเหลือง (Soybean Meal) โปรตีน 46%, source ในประเทศ (Domestic), 145 employees, date 16/06/2026; cover GMP+HACCP certs ticked; all 105 questions (1.1–28.4) ticked Yes (cx=293.3); Total/Earned/%Score, grade legend, contacts, signature & assessor block left blank.",
+    "defect": "D2 (plans/defects.md): inspect_pdf.py missed glyph checkboxes (☐ U+2610, MS-Gothic) → checkboxes=0. Fixed skill: inspect_pdf.py now scans p.chars for empty-box codepoints. Re-run finds 14 cert + ~24/page Yes/No/N/A boxes. dir2/dir3 11_E auto-detect now."
+  },
+  {
+    "id": "dir1/19_E",
+    "base": "data/ตัวอย่างข้อมูล",
+    "src": "data/ตัวอย่างข้อมูล/01_แบบสอบถามยังไม่กรอก/19_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล/ตัวอย่างข้อมูลที่กรอกแล้ว/19_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir1/37_E",
+    "base": "data/ตัวอย่างข้อมูล",
+    "src": "data/ตัวอย่างข้อมูล/01_แบบสอบถามยังไม่กรอก/37_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล/ตัวอย่างข้อมูลที่กรอกแล้ว/37_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir1/38_E",
+    "base": "data/ตัวอย่างข้อมูล",
+    "src": "data/ตัวอย่างข้อมูล/01_แบบสอบถามยังไม่กรอก/38_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล/ตัวอย่างข้อมูลที่กรอกแล้ว/38_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir1/50_E",
+    "base": "data/ตัวอย่างข้อมูล",
+    "src": "data/ตัวอย่างข้อมูล/01_แบบสอบถามยังไม่กรอก/50_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล/ตัวอย่างข้อมูลที่กรอกแล้ว/50_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir2/9_E",
+    "base": "data/ตัวอย่างข้อมูล 2",
+    "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/9_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/9_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir2/10_E",
+    "base": "data/ตัวอย่างข้อมูล 2",
+    "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/10_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/10_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir2/11_E",
+    "base": "data/ตัวอย่างข้อมูล 2",
+    "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/11_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/11_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir2/19_E",
+    "base": "data/ตัวอย่างข้อมูล 2",
+    "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/19_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/19_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir2/37_E",
+    "base": "data/ตัวอย่างข้อมูล 2",
+    "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/37_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/37_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir2/38_E",
+    "base": "data/ตัวอย่างข้อมูล 2",
+    "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/38_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/38_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir2/50_E",
+    "base": "data/ตัวอย่างข้อมูล 2",
+    "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/50_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/50_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir3/9_E",
+    "base": "data/ตัวอย่างข้อมูล 3",
+    "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/9_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/9_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir3/10_E",
+    "base": "data/ตัวอย่างข้อมูล 3",
+    "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/10_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/10_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir3/11_E",
+    "base": "data/ตัวอย่างข้อมูล 3",
+    "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/11_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/11_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir3/19_E",
+    "base": "data/ตัวอย่างข้อมูล 3",
+    "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/19_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/19_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir3/37_E",
+    "base": "data/ตัวอย่างข้อมูล 3",
+    "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/37_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/37_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir3/38_E",
+    "base": "data/ตัวอย่างข้อมูล 3",
+    "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/38_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/38_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  },
+  {
+    "id": "dir3/50_E",
+    "base": "data/ตัวอย่างข้อมูล 3",
+    "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/50_E.pdf",
+    "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/50_E.pdf",
+    "passes": false,
+    "mock": "",
+    "defect": ""
+  }
+]

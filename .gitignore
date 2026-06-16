@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# opensrc - source code for packages
+opensrc/
+
+auto-fill-pdf-v0
+auto-fill-pdf-v0.1
