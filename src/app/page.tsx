@@ -230,6 +230,9 @@ export default function Home() {
           ? ("active" as const)
           : ("todo" as const),
   }));
+  // 1-based step counter for the "Step N of M" overview in the card header.
+  const current =
+    status === "done" ? PHASES.length : Math.max(1, phaseIndex + 1);
 
   return (
     <>
@@ -298,6 +301,7 @@ export default function Home() {
             ref={inputRef}
             type="file"
             accept="application/pdf"
+            aria-label="Upload PDF form"
             className="hidden"
             onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
           />
@@ -386,21 +390,47 @@ export default function Home() {
             )}
 
             <div className="relative flex flex-col gap-5">
+              {/* Header: current state + "Step N of M" overview. */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    {busy ? (
+                      <Loader2Icon className="size-5 animate-spin" />
+                    ) : (
+                      <CircleCheckIcon className="size-5" />
+                    )}
+                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-sm leading-tight font-semibold">
+                      {busy ? "Filling your form" : "Form filled"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {busy
+                        ? "Running the auto-fill workflow"
+                        : "All four steps complete"}
+                    </span>
+                  </div>
+                </div>
+                <span className="shrink-0 rounded-full border px-2.5 py-1 text-xs font-medium tabular-nums text-muted-foreground">
+                  Step {current} of {PHASES.length}
+                </span>
+              </div>
+
               {/* Stepper: circles joined by per-gap connectors that fill as each
                   phase lands. Connectors live strictly between circles (a flex
                   child in the gap), so the line never tunnels through a circle. */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2.5">
                 <ol className="flex items-center">
                   {steps.map((s, i) => (
                     <Fragment key={s.key}>
                       {i > 0 && (
                         <li
                           aria-hidden
-                          className="h-0.5 flex-1 overflow-hidden rounded-full bg-border"
+                          className="h-[3px] flex-1 overflow-hidden rounded-full bg-border"
                         >
                           <span
                             className={cn(
-                              "block h-full origin-left bg-primary transition-transform duration-500 ease-[cubic-bezier(0.645,0.045,0.355,1)] motion-reduce:transition-none",
+                              "block h-full origin-left rounded-full bg-primary transition-transform duration-500 ease-[cubic-bezier(0.645,0.045,0.355,1)] motion-reduce:transition-none",
                               i <= phaseIndex || status === "done"
                                 ? "scale-x-100"
                                 : "scale-x-0",
@@ -408,35 +438,45 @@ export default function Home() {
                           />
                         </li>
                       )}
-                      <li
-                        className={cn(
-                          "flex size-8 shrink-0 items-center justify-center rounded-full border text-xs tabular-nums transition-colors duration-300",
-                          s.state === "done" &&
-                            "border-primary bg-primary text-primary-foreground",
-                          s.state === "active" && "border-primary text-primary",
-                          s.state === "todo" &&
-                            "border-border bg-card text-muted-foreground",
+                      <li className="relative shrink-0">
+                        {s.state === "active" && (
+                          <span
+                            aria-hidden
+                            className="absolute inset-0 animate-ping rounded-full ring-2 ring-primary/40 motion-reduce:hidden"
+                          />
                         )}
-                      >
-                        {s.state === "done" ? (
-                          <CircleCheckIcon className="size-4 duration-300 animate-in zoom-in-50" />
-                        ) : s.state === "active" ? (
-                          <Loader2Icon className="size-4 animate-spin" />
-                        ) : (
-                          i + 1
-                        )}
+                        <span
+                          aria-current={s.state === "active" ? "step" : undefined}
+                          className={cn(
+                            "relative flex size-9 items-center justify-center rounded-full border-2 text-xs font-medium tabular-nums transition-colors duration-300",
+                            s.state === "done" &&
+                              "border-primary bg-primary text-primary-foreground",
+                            s.state === "active" &&
+                              "border-primary bg-card text-primary",
+                            s.state === "todo" &&
+                              "border-border bg-card text-muted-foreground",
+                          )}
+                        >
+                          {s.state === "done" ? (
+                            <CircleCheckIcon className="size-5 duration-300 animate-in zoom-in-50" />
+                          ) : s.state === "active" ? (
+                            <Loader2Icon className="size-5 animate-spin" />
+                          ) : (
+                            i + 1
+                          )}
+                        </span>
                       </li>
                     </Fragment>
                   ))}
                 </ol>
 
                 {/* Labels mirror the row's flex structure so each sits centered
-                    under its circle (w-8 cells over circles, flex-1 over gaps). */}
+                    under its circle (w-9 cells over circles, flex-1 over gaps). */}
                 <ol className="flex items-start" aria-hidden>
                   {steps.map((s, i) => (
                     <Fragment key={s.key}>
                       {i > 0 && <span className="flex-1" />}
-                      <span className="flex w-8 shrink-0 justify-center">
+                      <span className="flex w-9 shrink-0 justify-center">
                         <span
                           className={cn(
                             "text-[11px] whitespace-nowrap",
@@ -453,20 +493,27 @@ export default function Home() {
                 </ol>
               </div>
 
-              {/* Live phase narration — announced to screen readers. */}
-              <p
-                aria-live="polite"
-                className="min-h-5 text-center text-xs text-muted-foreground"
-              >
-                {busy && phaseMsg && (
-                  <span
-                    key={phaseMsg}
-                    className="inline-block duration-300 animate-in fade-in"
-                  >
-                    {phaseMsg}
-                  </span>
+              {/* Status strip — live narration (busy) or success (done). Carries
+                  the lower half so the card stays balanced in both states. */}
+              <div className="flex items-center gap-2.5 rounded-xl border bg-muted/40 px-4 py-3">
+                {busy ? (
+                  <Loader2Icon className="size-4 shrink-0 animate-spin text-primary" />
+                ) : (
+                  <CircleCheckIcon className="size-4 shrink-0 text-primary" />
                 )}
-              </p>
+                <p aria-live="polite" className="text-sm text-muted-foreground">
+                  {busy ? (
+                    <span
+                      key={phaseMsg}
+                      className="inline-block duration-300 animate-in fade-in"
+                    >
+                      {phaseMsg || "Starting…"}
+                    </span>
+                  ) : (
+                    "Your filled PDF is ready to download below."
+                  )}
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -519,8 +566,8 @@ export default function Home() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {result.preview.map((r, i) => (
-                          <TableRow key={i}>
+                        {result.preview.map((r) => (
+                          <TableRow key={r.label}>
                             <TableCell className="text-muted-foreground">
                               {r.label}
                             </TableCell>
