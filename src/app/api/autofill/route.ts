@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import type { NextRequest } from "next/server";
 import { start } from "workflow/api";
 import { jobDir } from "@/lib/autofill/python";
+import { isPdfUpload } from "@/lib/pdf";
 import { fillWorkflow } from "@/lib/autofill/workflow";
 
 export const runtime = "nodejs";
@@ -19,10 +20,7 @@ export async function POST(req: NextRequest) {
   if (!(file instanceof File)) {
     return Response.json({ error: "No file uploaded" }, { status: 400 });
   }
-  if (
-    file.type !== "application/pdf" &&
-    !file.name.toLowerCase().endsWith(".pdf")
-  ) {
+  if (!isPdfUpload(file)) {
     return Response.json({ error: "File must be a PDF" }, { status: 400 });
   }
 
@@ -30,11 +28,14 @@ export async function POST(req: NextRequest) {
   const dir = await jobDir(jobId);
   const stem =
     file.name.replace(/\.pdf$/i, "").replace(/[/\\]/g, "_").trim() || "form";
+  // The filled PDF's on-disk name is also its download name — stored once in
+  // meta.json so the download route reads it back rather than re-deriving it.
+  const downloadName = `${stem}_Filled.pdf`;
   const pdfPath = path.join(dir, "in.pdf");
   await fs.writeFile(pdfPath, Buffer.from(await file.arrayBuffer()));
   await fs.writeFile(
     path.join(dir, "meta.json"),
-    JSON.stringify({ stem, downloadName: `${stem}_Filled.pdf` }),
+    JSON.stringify({ downloadName }),
   );
 
   // Paths are resolved here (normal Node) and passed as strings — the workflow
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
       pdfPath,
       anchorsPath: path.join(dir, "anchors.json"),
       fillsPath: path.join(dir, "fills.json"),
-      outPath: path.join(dir, `${stem}_Filled.pdf`),
+      outPath: path.join(dir, downloadName),
       stem,
     },
   ]);

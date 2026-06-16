@@ -17,6 +17,8 @@ export type OverlaySpec = { src: string; out: string; items: OverlayItem[] };
 export type Assembled = {
   spec: OverlaySpec;
   preview: { label: string; value: string }[];
+  fieldsFilled: number;
+  boxesTicked: number;
 };
 
 /** Turn anchor coords + model suggestions into an overlay_fill.py spec. */
@@ -63,5 +65,10 @@ export function assemble(
     });
   }
 
-  return { spec: { src, out, items: [...textItems, ...checkItems] }, preview };
+  return {
+    spec: { src, out, items: [...textItems, ...checkItems] },
+    preview,
+    fieldsFilled: textItems.length,
+    boxesTicked: checkItems.length,
+  };
 }

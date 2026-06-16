@@ -4,13 +4,9 @@ import { Suggestion, type Checkbox, type InspectResult } from "./schemas";
 
 /**
  * One batched structured-output call: a value per text field + one ticked box
- * per checkbox row. `ctx` is the seam for future knowledge-grounded answers —
- * unused in v1 (pure mock).
+ * per checkbox row. Pure mock data — no external knowledge grounding.
  */
-export async function suggestAnswers(
-  ins: InspectResult,
-  ctx?: string,
-): Promise<Suggestion> {
+export async function suggestAnswers(ins: InspectResult): Promise<Suggestion> {
   "use step";
   const fieldLines =
     ins.fields.map((f) => `- ${f.id}: "${f.label}"`).join("\n") || "(none)";
@@ -32,7 +28,7 @@ export async function suggestAnswers(
 
   const prompt = `You are filling in a blank form with realistic MOCK (sample) data. This is sample data — never present it as real.
 Form: "${ins.title}".
-${ctx ? `\nReference context to draw answers from:\n${ctx}\n` : ""}
+
 TEXT FIELDS (id: the label that precedes the blank). Propose ONE short, plausible value
 per field, written in the field's own language (use Thai script when the label is Thai).
 Keep each value short enough to fit on a single line.

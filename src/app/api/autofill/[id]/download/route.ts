@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import os from "node:os";
+import { jobDirPath } from "@/lib/autofill/python";
 
 export const runtime = "nodejs";
 
@@ -14,8 +14,8 @@ export async function GET(
     return new Response("Bad job id", { status: 400 });
   }
 
-  const dir = path.join(os.tmpdir(), "autofill", id);
-  let meta: { stem: string; downloadName: string };
+  const dir = jobDirPath(id);
+  let meta: { downloadName: string };
   try {
     meta = JSON.parse(await fs.readFile(path.join(dir, "meta.json"), "utf8"));
   } catch {
@@ -24,7 +24,8 @@ export async function GET(
 
   let bytes: Buffer;
   try {
-    bytes = await fs.readFile(path.join(dir, `${meta.stem}_Filled.pdf`));
+    // basename() keeps the read inside `dir` regardless of how meta was written.
+    bytes = await fs.readFile(path.join(dir, path.basename(meta.downloadName)));
   } catch {
     return new Response("Filled PDF not found", { status: 404 });
   }

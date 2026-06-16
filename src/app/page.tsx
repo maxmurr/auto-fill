@@ -32,6 +32,8 @@ import {
   TaskTrigger,
 } from "@/components/ai-elements/task";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { isPdfUpload } from "@/lib/pdf";
+import type { RunEvent } from "@/lib/autofill/workflow";
 import { cn } from "@/lib/utils";
 
 type Phase = "inspect" | "suggest" | "assemble" | "stamp";
@@ -42,12 +44,8 @@ const PHASES: { key: Phase; label: string }[] = [
   { key: "stamp", label: "Stamp" },
 ];
 
-type Result = {
-  jobId: string;
-  fields_filled: number;
-  boxes_ticked: number;
-  preview: { label: string; value: string }[];
-};
+/** The `done` event's payload (minus its discriminant) is exactly the result. */
+type Result = Omit<Extract<RunEvent, { type: "done" }>, "type">;
 
 type Status = "idle" | "running" | "done" | "error";
 
@@ -74,7 +72,7 @@ export default function Home() {
 
   const pickFile = useCallback((f: File | null) => {
     if (!f) return;
-    if (f.type !== "application/pdf" && !f.name.toLowerCase().endsWith(".pdf")) {
+    if (!isPdfUpload(f)) {
       toast.error("Please choose a PDF file");
       return;
     }
@@ -96,39 +94,33 @@ export default function Home() {
 
   // Apply one NDJSON event to the UI. `done` carries everything (incl. jobId),
   // so a replayed stream rebuilds the result + download link from scratch.
-  const handleEvent = useCallback(
-    (
-      ev: {
-        type: string;
-        phase?: Phase;
-        msg?: string;
-        message?: string;
-      } & Partial<Result>,
-    ) => {
-      if (ev.type === "phase" && ev.phase) {
-        setStatus("running");
-        setActive(ev.phase);
-        if (ev.msg) setPhaseMsg(ev.msg);
-      } else if (ev.type === "done") {
-        setActive(null);
-        setStatus("done");
-        setResult({
-          jobId: ev.jobId!,
-          fields_filled: ev.fields_filled ?? 0,
-          boxes_ticked: ev.boxes_ticked ?? 0,
-          preview: ev.preview ?? [],
-        });
-        clearStored();
-        toast.success("PDF filled — ready to download");
-      } else if (ev.type === "error") {
-        setStatus("error");
-        setActive(null);
-        clearStored();
-        toast.error(ev.message || "Workflow failed");
-      }
-    },
-    [],
-  );
+  const handleEvent = useCallback((ev: RunEvent) => {
+    // `ev` is JSON.parse'd wire data asserted to RunEvent — the type is
+    // compile-time only, so coalesce defensively. A malformed or legacy replayed
+    // event then degrades gracefully instead of crashing the result view
+    // (preview.length/.map) or rendering "undefined".
+    if (ev.type === "phase" && ev.phase) {
+      setStatus("running");
+      setActive(ev.phase);
+      if (ev.msg) setPhaseMsg(ev.msg);
+    } else if (ev.type === "done") {
+      setActive(null);
+      setStatus("done");
+      setResult({
+        jobId: ev.jobId,
+        fields_filled: ev.fields_filled ?? 0,
+        boxes_ticked: ev.boxes_ticked ?? 0,
+        preview: ev.preview ?? [],
+      });
+      clearStored();
+      toast.success("PDF filled — ready to download");
+    } else if (ev.type === "error") {
+      setStatus("error");
+      setActive(null);
+      clearStored();
+      toast.error(ev.message || "Workflow failed");
+    }
+  }, []);
 
   // Stream a run's NDJSON progress (from `startIndex`) into the UI. Used both
   // for a fresh run and for replaying after a reconnect.
@@ -143,17 +135,16 @@ export default function Home() {
     const reader = res.body.getReader();
     const dec = new TextDecoder();
     let buf = "";
-    let done = false;
-    while (!done) {
-      const { done: d, value } = await reader.read();
-      done = d;
-      buf += dec.decode(value ?? new Uint8Array(), { stream: !d });
+    while (true) {
+      const { done, value } = await reader.read();
+      buf += dec.decode(value ?? new Uint8Array(), { stream: !done });
       let nl: number;
       while ((nl = buf.indexOf("\n")) >= 0) {
         const line = buf.slice(0, nl).trim();
         buf = buf.slice(nl + 1);
         if (line) handleEvent(JSON.parse(line));
       }
+      if (done) break;
     }
   }, [handleEvent]);
 
@@ -318,10 +309,7 @@ export default function Home() {
                   aria-label="Remove file"
                   onClick={(e) => {
                     e.stopPropagation();
-                    setFile(null);
-                    setStatus("idle");
-                    setResult(null);
-                    if (inputRef.current) inputRef.current.value = "";
+                    reset();
                   }}
                   className="flex size-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
@@ -432,9 +420,7 @@ export default function Home() {
                           <span
                             className={cn(
                               "block h-full origin-left rounded-full bg-primary transition-transform duration-500 ease-[cubic-bezier(0.645,0.045,0.355,1)] motion-reduce:transition-none",
-                              i <= phaseIndex || status === "done"
-                                ? "scale-x-100"
-                                : "scale-x-0",
+                              s.state !== "todo" ? "scale-x-100" : "scale-x-0",
                             )}
                           />
                         </li>

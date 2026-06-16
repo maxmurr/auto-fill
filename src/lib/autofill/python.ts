@@ -12,22 +12,28 @@ export function runPy(script: string, args: string[]): Promise<string> {
     const proc = spawn(PY, [path.join(SCRIPTS, script), ...args], {
       stdio: ["ignore", "pipe", "pipe"],
     });
-    let out = "";
-    let err = "";
-    proc.stdout.on("data", (d) => (out += d));
-    proc.stderr.on("data", (d) => (err += d));
+    const out: Buffer[] = [];
+    const err: Buffer[] = [];
+    proc.stdout.on("data", (d) => out.push(d));
+    proc.stderr.on("data", (d) => err.push(d));
     proc.on("error", reject);
-    proc.on("close", (code) =>
-      code === 0
-        ? resolve(out)
-        : reject(new Error(`${script} exited ${code}: ${err || out}`)),
-    );
+    proc.on("close", (code) => {
+      const stdout = Buffer.concat(out).toString();
+      if (code === 0) return resolve(stdout);
+      const stderr = Buffer.concat(err).toString();
+      reject(new Error(`${script} exited ${code}: ${stderr || stdout}`));
+    });
   });
 }
 
-/** Per-job working directory under the OS temp dir. */
+/** Canonical per-job directory path under the OS temp dir (does not create it). */
+export function jobDirPath(id: string): string {
+  return path.join(os.tmpdir(), "autofill", id);
+}
+
+/** Per-job working directory under the OS temp dir (created if missing). */
 export async function jobDir(id: string): Promise<string> {
-  const dir = path.join(os.tmpdir(), "autofill", id);
+  const dir = jobDirPath(id);
   await fs.mkdir(dir, { recursive: true });
   return dir;
 }

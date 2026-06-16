@@ -67,7 +67,12 @@ export async function fillWorkflow(a: FillArgs): Promise<RunEvent> {
     const sug = await suggestAnswers(ins);
 
     await emit({ type: "phase", phase: "assemble", msg: "Assembling overlay…" });
-    const { spec, preview } = assemble(ins, sug, a.pdfPath, a.outPath);
+    const { spec, preview, fieldsFilled, boxesTicked } = assemble(
+      ins,
+      sug,
+      a.pdfPath,
+      a.outPath,
+    );
 
     await emit({ type: "phase", phase: "stamp", msg: "Stamping answers onto PDF…" });
     await stamp(spec, a.fillsPath);
@@ -75,8 +80,8 @@ export async function fillWorkflow(a: FillArgs): Promise<RunEvent> {
     const done: RunEvent = {
       type: "done",
       jobId: a.jobId,
-      fields_filled: spec.items.filter((i) => i.kind === "text").length,
-      boxes_ticked: spec.items.filter((i) => i.kind === "check").length,
+      fields_filled: fieldsFilled,
+      boxes_ticked: boxesTicked,
       preview,
     };
     await emit(done);
