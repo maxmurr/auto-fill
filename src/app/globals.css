@@ -139,17 +139,27 @@
  * is correct here (entrance/exit animations elsewhere use ease-out). The line
  * lives inside a clipped, relatively-positioned track and translates across it.
  */
+/* Beam wash is the full height of the scanner box, so it sweeps edge to edge
+   (−100% fully above → 100% fully below, filling the box as it passes). */
 @keyframes scan {
   0% {
-    transform: translateY(-130%);
+    transform: translateY(-100%);
   }
   100% {
-    transform: translateY(130%);
+    transform: translateY(100%);
   }
 }
 
 .animate-scan {
-  animation: scan 2.2s linear infinite;
+  animation: scan 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+/* Faint blueprint grid that fills the scanner box while a run is in flight. */
+.scan-grid {
+  background-image:
+    linear-gradient(to right, var(--color-primary) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-primary) 1px, transparent 1px);
+  background-size: 22px 22px;
 }
 
 @media (prefers-reduced-motion: reduce) {

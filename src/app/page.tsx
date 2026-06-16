@@ -364,14 +364,24 @@ export default function Home() {
 
         {/* Progress — the workflow's signature waiting moment. */}
         {showProgress && (
-          <div className="relative overflow-hidden rounded-2xl border bg-card p-6 shadow-sm">
-            {/* Scanner sweep while running. Decorative, reduced-motion safe. */}
+          <div
+            className={cn(
+              "relative overflow-hidden rounded-2xl border bg-card p-6 shadow-sm transition-colors duration-300",
+              busy && "border-primary/30",
+            )}
+          >
+            {/* Scanner overlay while running: a blueprint grid that fills the
+                whole box, plus a full-height beam wash with a glowing leading
+                edge sweeping top→bottom. Decorative, reduced-motion safe. */}
             {busy && (
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 motion-reduce:hidden"
+                className="pointer-events-none absolute inset-0 overflow-hidden motion-reduce:hidden"
               >
-                <div className="animate-scan h-1/3 w-full bg-linear-to-b from-transparent via-primary/20 to-transparent" />
+                <div className="scan-grid absolute inset-0 opacity-[0.1]" />
+                <div className="animate-scan absolute inset-x-0 top-0 h-full bg-linear-to-b from-primary/0 via-primary/10 to-primary/25">
+                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-primary/80 shadow-[0_0_16px_3px_var(--color-primary)]" />
+                </div>
               </div>
             )}
 
