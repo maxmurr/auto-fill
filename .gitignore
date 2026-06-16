@@ -48,3 +48,7 @@ opensrc/
 
 auto-fill-pdf-v0
 auto-fill-pdf-v0.1
+
+# agent skills / config (local, not versioned)
+.claude/
+.agents/
