@@ -566,8 +566,12 @@ export default function Home() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {result.preview.map((r) => (
-                          <TableRow key={r.label}>
+                        {/* Form labels are not unique (duplicate Thai field
+                            labels appear in the same PDF), so the row index
+                            disambiguates. The preview list is built once and
+                            never reorders, so an index-based key is stable. */}
+                        {result.preview.map((r, i) => (
+                          <TableRow key={`${i}-${r.label}`}>
                             <TableCell className="text-muted-foreground">
                               {r.label}
                             </TableCell>
