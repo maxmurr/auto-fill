@@ -157,6 +157,44 @@
   background-size: 22px 22px;
 }
 
+/* Text shimmer for the live phase label: a bright band sweeps muted text.
+   CSS-only (no framer-motion) via a clipped gradient on the text itself. */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-muted-foreground) 0%,
+    var(--color-muted-foreground) 40%,
+    var(--color-foreground) 50%,
+    var(--color-muted-foreground) 60%,
+    var(--color-muted-foreground) 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 2.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Drop the sweep and render the text as plain muted-foreground. */
+  .shimmer {
+    animation: none;
+    background: none;
+    color: var(--color-muted-foreground);
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   /* Stop the infinite decorative sweep outright — a single 0.01ms pass would
      still flash, so `none` is correct for this one. */

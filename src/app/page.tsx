@@ -12,6 +12,8 @@ import {
   SparklesIcon,
   ScanLineIcon,
   RotateCcwIcon,
+  ListChecksIcon,
+  ChevronDownIcon,
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -23,13 +25,12 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Task,
+  TaskContent,
+  TaskItem,
+  TaskItemFile,
+  TaskTrigger,
+} from "@/components/ai-elements/task";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
@@ -505,7 +506,7 @@ export default function Home() {
                   {busy ? (
                     <span
                       key={phaseMsg}
-                      className="inline-block duration-300 animate-in fade-in"
+                      className="shimmer inline-block duration-300 animate-in fade-in"
                     >
                       {phaseMsg || "Starting…"}
                     </span>
@@ -553,37 +554,41 @@ export default function Home() {
               </a>
 
               {result.preview.length > 0 && (
-                <div className="flex flex-col gap-2">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    What was filled in
-                  </p>
-                  <div className="max-h-72 overflow-auto rounded-lg border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Field</TableHead>
-                          <TableHead>Mock value</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {/* Form labels are not unique (duplicate Thai field
-                            labels appear in the same PDF), so the row index
-                            disambiguates. The preview list is built once and
-                            never reorders, so an index-based key is stable. */}
-                        {result.preview.map((r, i) => (
-                          <TableRow key={`${i}-${r.label}`}>
-                            <TableCell className="text-muted-foreground">
-                              {r.label}
-                            </TableCell>
-                            <TableCell className="font-medium">
+                <Task defaultOpen className="rounded-xl border bg-muted/30 p-3">
+                  <TaskTrigger title="What was filled in">
+                    <div className="flex w-full cursor-pointer items-center gap-2 text-sm font-medium transition-colors hover:text-foreground">
+                      <ListChecksIcon className="size-4 text-primary" />
+                      <span>What was filled in</span>
+                      <span className="tabular-nums text-muted-foreground">
+                        ({result.preview.length})
+                      </span>
+                      <ChevronDownIcon className="ml-auto size-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                    </div>
+                  </TaskTrigger>
+                  <TaskContent>
+                    <div className="max-h-64 space-y-2 overflow-auto pr-1">
+                      {/* Form labels are not unique (duplicate Thai field labels
+                          appear in the same PDF), so the row index disambiguates.
+                          The preview list is built once and never reorders, so an
+                          index-based key is stable. */}
+                      {result.preview.map((r, i) => (
+                        <TaskItem
+                          key={`${i}-${r.label}`}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <span className="min-w-0 flex-1 truncate">
+                            {r.label}
+                          </span>
+                          <TaskItemFile className="max-w-[55%] shrink-0">
+                            <span className="block truncate font-medium">
                               {r.value}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </div>
+                            </span>
+                          </TaskItemFile>
+                        </TaskItem>
+                      ))}
+                    </div>
+                  </TaskContent>
+                </Task>
               )}
 
               <div className="flex items-center justify-between gap-3">
