@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Generate /tmp/auto_fill_fills.json for the 50_E Evershining scoring matrix
 (FM-PU-09). Self-contained geometry (no dependence on inspect `tables`):
-  - tick the "2" score column (cx=455.0, edges 432.1/477.8) on every white
-    answer row (a horizontal-border band the score divider crosses, that is
-    NOT a grey header and NOT a column-header text row);
+  - the form mixes TWO answer-table types on the same right-hand grid
+    (dividers 432.1│477.8│523.6│569.3):
+      * SCORE sections (1-5): columns 2│1│0 → tick "2" (cx=455.0);
+      * Yes/No sections (6 Labor, 7 Transport, 8 traceability): columns
+        มี│ไม่มี → tick มี / "Yes" (cx=500.7, the 477.8│523.6 cell center).
+    Both share the 477.8 and 523.6 dividers, so a row's geometry alone can't
+    tell them apart — the table TYPE is read from each reprinted column-header
+    row ("คะแนน/Point" = score, "มี/ไม่มี" = Yes/No) and carried down its rows;
   - tick GMP + HACCP cert boxes (drawn as rounded-square *curves*);
   - stamp header text (mock) on the dotted leaders of page 0.
 Reusable across dir1/2/3 50_E (identical template); vary only HDR mock.
@@ -15,7 +20,8 @@ SRC = sys.argv[1]
 OUT = sys.argv[2]
 HDR = json.loads(sys.argv[3]) if len(sys.argv) > 3 else {}
 
-X2 = 455.0          # "2" score column center
+X2 = 455.0          # "2" score column center (432.1│477.8)
+MI_CX = 500.7       # มี / "Yes" column center on Yes/No tables (477.8│523.6)
 DIV = 477.8         # right divider of the "2" column (2|1 boundary)
 SKIP_TXT = ("ประเมิน", "ประเมนิ", "Evaluatio", "คะแนน", "Point")  # column-header words
 
@@ -90,21 +96,36 @@ for pi, p in enumerate(pdf.pages):
         return " ".join(w['text'] for w in lab)
 
     checks = []
+    cur_type = "score"                       # the form opens with score sections
     borders = sorted(set(round(y, 1) for y in hb))
     for a, c in zip(borders, borders[1:]):
         h = c - a
         if h < 10:                           # too thin to be a real row
             continue
         midtop = (a + c) / 2
-        if not covered(midtop):              # outside the scoring grid
+        bw = [w for w in words
+              if a - 1 <= (w['top'] + w['bottom']) / 2 <= c + 1]
+        # ---- table-type switch (independent of covered/grey) ----
+        # A reprinted column-header row sets which answer column the rows below
+        # use. Detect by the answer-column header text, NOT bare "มี/ไม่มี":
+        # "ไม่มี" also occurs in score *labels* (e.g. 1.2.2.2 «ไม่มีน้ำขัง»),
+        # so require it to sit in the answer columns (x0 > 475); "Point" (the
+        # English half of "คะแนน/Point") only ever appears in a score header.
+        if any(w['text'].strip() in ('ไม่มี', '(No)') and w['x0'] > 475 for w in bw):
+            cur_type = "yesno"
+            continue
+        if any('Point' in w['text'] for w in bw):
+            cur_type = "score"
+            continue
+        if not covered(midtop):              # outside the answer grid
             continue
         cy = midtop
         if any(g[0] - 1 <= cy <= g[1] + 1 for g in greys):
             continue                         # grey header / section bar
         lab = label_at(a, c)
         if any(s in lab for s in SKIP_TXT):
-            continue                         # column-header text row
-        checks.append({"kind": "check", "cx": X2,
+            continue                         # other header / title row
+        checks.append({"kind": "check", "cx": MI_CX if cur_type == "yesno" else X2,
                        "cy_pdf": round(H - cy, 1),
                        "_label": lab[:42]})
         n_ticks += 1

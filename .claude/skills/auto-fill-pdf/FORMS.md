@@ -21,11 +21,20 @@ Fill header text (Date / Supplier / Product / Manufacturing). Leave Acknowledge 
 Approval / signature-Date blank.
 
 ## 10_E — MMP International C-TPAT security audit (2 pg)
-Rect grid, `checkboxes=0` → use `tables`. Page 716.82×1014.51. Cols: criteria | S |
-U | Comment, one tall S/U cell per section. S-col cx≈353.9. **Tick S once per
-section = 12 ticks (6 p0 + 6 p1);** section 6 spills to p1 top — tick once on p0.
-Header: Supplier Name / Products Supplied / Representative / Audit Date. Leave
-Comment, "Inspection by", and Pass / Not-Pass result boxes blank.
+Page 716.82×1014.51. Cols: criteria | S | U | Comment, one tall S/U cell per
+section. S-col cx≈354 (dividers 337.9│370.2). **Tick S once per section = 12 ticks
+(6 p0 + 6 p1);** section 6 spills to p1 top — tick once on p0. Header: Supplier
+Name / Products Supplied / Representative / Audit Date — inline `text` after each
+colon (row A baseline≈916: Name x≈106, Products x≈421; row B baseline≈892: Rep
+x≈142, Audit Date x≈391). Leave Comment, "Inspection by", and Pass / Not-Pass
+result boxes blank.
+> **Some copies report `tables=0` AND `checkboxes=0`** (no detectable grid) — the
+> dir-2 copy does. Don't rely on inspect's `tables`. Derive bands directly: pull
+> horizontal dividers (rects/lines, |x0−x1|<2) + section-heading text y
+> (left-col lines `^\d+[.\s]`), then S-cell cy = midpoint of the band bounded by
+> the divider above the next section. Verified dir-2 cy (S-col x=354, size 12):
+> p0 sec1–6 = 784.8 / 658.3 / 531.6 / 406.8 / 276.1 / 140.2;
+> p1 sec7–12 = 876.6 / 748.8 / 642.1 / 536.5 / 431.0 / 283.2.
 
 ## 11_E — SD Guthrie Morakot "Supplier Self Assessment" (16 pg)
 Page 595.44×841.68. ☐-glyph boxes (inspect glyph detector finds them). Matrix cols:
@@ -74,16 +83,32 @@ blank); food-fraud §14 → ไม่ใช่ except 14.4 → ใช่. Skip: 
 หมวดที่ bars, bold sub-group headers, `โปรดระบุ` rows, details column, signature.
 
 ## 50_E — Evershining "FM-PU-09" scoring matrix (6 pg)
-Page 595.28×841.89, rect grid. Score cols 2 / 1 / 0: "2" cx≈455.0, "1" 500.7, "0"
-546.5. **Tick "2" on every answer row** (≈69 rows, 1.1.1…8.2). Answer row = a band
-crossed by an INTERNAL score divider (477.8 OR 523.6 — OR them to fill rendering
-gaps); do NOT gate on the outer edges 432.1/569.3 (they run full height and catch
-the header block + title bars). Skip grey bands (sub-group headers, the 2-1-0
-header) and column-header text rows. Certs: GMP (cx≈284.8) + HACCP (cx≈471.8) at
-cy≈532 (curve boxes). Header text on the dotted leaders.
+Page 595.28×841.89, rect grid. **Two answer-table types share one right-hand grid**
+(dividers 432.1│477.8│523.6│569.3) — getting the column right means reading the
+table TYPE, not just the row geometry:
+- **Score sections 1–5** — cols 2 / 1 / 0 ("2" cx≈455.0, "1" 500.7, "0" 546.5).
+  **Tick "2"** (≈54 rows, 1.1.1…5.2.5).
+- **Yes/No sections 6 (Labor), 7 (Transport), 8 (traceability/maintenance)** — cols
+  มี / ไม่มี (มี cx≈**500.7** = the 477.8│523.6 cell center, ไม่มี 546.5). A
+  cooperative supplier **ticks มี (Yes) on every row** (≈15 rows: 6.1.1…6.3.5, 7.1,
+  7.2, 8.1, 8.2).
+
+Answer row = a band crossed by an INTERNAL divider (477.8 OR 523.6 — OR them to
+fill rendering gaps); do NOT gate on the outer edges 432.1/569.3 (full height,
+catch the header block + title bars). **Both table types occupy the same 477.8 &
+523.6 dividers, so a row's geometry can't tell score from Yes/No** — carry the type
+from each reprinted column-header row: `Point` (the English half of "คะแนน/Point")
+→ score; a `ไม่มี`/`(No)` word **in the answer columns (x0>475)** → Yes/No. Don't
+key off bare `มี`/`ไม่มี` — they occur in score *labels* too (e.g. 1.2.2.2
+«ไม่มีน้ำขัง»). Skip grey bands (sub-group headers, the 2-1-0 header) and other
+column-header / title text rows. Certs: GMP (cx≈284.8) + HACCP (cx≈471.8) at cy≈532
+(curve boxes). Header text on the dotted leaders.
 > Anchor the **Supplier Name** value after the *full* label / colon, not the word
 > "Supplier" — anchoring on "Supplier" drops the value onto "Name" (a confirmed
 > minor overlap). Leave legend / summary totals / signature blank.
+> **Earlier bug (fixed):** the helper ticked "2" (cx455) on the Yes/No rows too —
+> cx455 is the *criteria* column there, so the marks floated left of the มี box.
+> The helper now routes Yes/No rows to มี (cx500.7).
 
 Helper: `python3 scripts/fill_scoring_matrix.py SRC OUT '{"supplier":…,"date":…,"goods":…,"product":…,"source":…}'`
 emits a ready-to-stamp `fills.json` (hardcoded 50_E geometry). The generic path for
