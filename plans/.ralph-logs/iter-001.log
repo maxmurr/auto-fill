@@ -1,0 +1,9 @@
+Done. `dir3/9_E` complete.
+
+**Item:** dir3/9_E — Asian Alliance 1-page Supplier Agreement.
+- Reused 9_E form-family note + D1 inline path (skip Workflow). Resolved stale `01_` src → real `แบบสอบถามยังไม่กรอก/` on disk.
+- inspect found 14 stroked checkboxes. Ticked 7 **Accepted** boxes (left, cx=70.2), left 7 Unaccepted blank. Stamped header: supplier บริษัท โคราชฟีด อินกรีเดียนท์ จำกัด, product ข้าวโพดบด (Ground Corn), mfg Korat Plant, spec RM-CN-050/2026, date 16/06/2026.
+- Verified at 240dpi: green vector ticks centered in left boxes, Thai header on dotted lines, no overlap. No skill script bug → no defects.md append.
+- Moved to `…/ตัวอย่างข้อมูลที่กรอกแล้ว/9_E.pdf` (140KB). check.sh: file valid on disk. Set `passes:true`, filled mock/defect.
+
+15/21 → 16 done now. 6 remain (next: dir3/10_E). Stopping.

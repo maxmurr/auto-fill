@@ -31,161 +31,161 @@
     "base": "data/ตัวอย่างข้อมูล",
     "src": "data/ตัวอย่างข้อมูล/01_แบบสอบถามยังไม่กรอก/19_E.pdf",
     "out": "data/ตัวอย่างข้อมูล/ตัวอย่างข้อมูลที่กรอกแล้ว/19_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "FoodChain ID Standard Ingredient Form (Non-GMO Project, 5-page AcroForm, 319 fields); ingredient รำข้าว (Rice Bran), manufacturer บริษัท ไทยฟีดมิลล์ จำกัด (Thai Feed Mill Co., Ltd.), Q4.1 crop source ข้าว (Rice) / origin ประเทศไทย (Thailand). Simple non-GMO mono plant feed ingredient: Q1 No(organic), Q2 No(NGP-verified), Q3 No(GM), Q4 Yes(mono), Q5 No(compound→tables blank), Q6–Q10 No, Q11 No(animal), Q12 No(waterborne), Q13 No(non-biological). All sub-question radios, Q5 tables, Check Box_1 and the signature block left blank.",
+    "defect": "D3 (plans/defects.md): AcroForm text fields can't render Thai (form DA font = Helvetica, no Thai glyphs; NeedAppearances/poppler drops U+0E.. chars). Fixed skill: REFERENCE.md now says use overlay_fill.py on field /Rect for Thai/non-Latin AcroForms + tick radios by physical column (export names arbitrary, radio_q11 reversed). Filled via overlay on original. See 19_E form-family note."
   },
   {
     "id": "dir1/37_E",
     "base": "data/ตัวอย่างข้อมูล",
     "src": "data/ตัวอย่างข้อมูล/01_แบบสอบถามยังไม่กรอก/37_E.pdf",
     "out": "data/ตัวอย่างข้อมูล/ตัวอย่างข้อมูลที่กรอกแล้ว/37_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "BSCM Foods 16-page Procurement supplier questionnaire (FM-PC-002/14(05), rect-grid, no AcroForm); supplier บริษัท ไทยคาสซาวา ฟีด จำกัด (Thai Cassava Feed Co., Ltd.), product มันเส้น/กากมันสำปะหลัง (Cassava Chips), 88/9 ม.4 นครราชสีมา, contact นางสาวสุดารัตน์ ใจดี, date 16/06/2026, self-manufactured (Korat plant). Part1 allergen/contaminant rows all No (clean single-ingredient plant feed); '5. suitable for Lacto-ovo/Vegan/Muslim' + '6. free from beef/pork/lamb/chicken' all Yes; building/raw-material/storage/pest/cleaning/calibration/traceability/personnel + all labor-ethics rows Yes (Yes cx361.6/No cx425.4; allergen Yes cx390/No cx430.2); raw-mat 'contain allergen/GMO?' & 'pest outbreak 6mo?' = No. Identity stamped on idx0+idx3 dotted lines. Left blank: cert table, lab-param/inspection-plan free-text tables (idx4-6), choice/explain/□-list rows, specify columns, respondent/verifier signature block. 154 ticks + 17 text, all visually verified across 16 rendered pages.",
+    "defect": "D4 (plans/defects.md): rect-grid Yes/No matrix gave inspect checkboxes=0 (recurrence of seeded #2). Fixed skill: inspect_pdf.py now emits per-page `tables` (column cx + row cy_pdf bands w/ headers) — reproduces 37_E geometry exactly, additive (9_E/11_E/19_E unaffected). dir2/dir3 37_E auto-detect now. See also 37_E form-family note + answer logic."
   },
   {
     "id": "dir1/38_E",
     "base": "data/ตัวอย่างข้อมูล",
     "src": "data/ตัวอย่างข้อมูล/01_แบบสอบถามยังไม่กรอก/38_E.pdf",
     "out": "data/ตัวอย่างข้อมูล/ตัวอย่างข้อมูลที่กรอกแล้ว/38_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "PFI (PATTANI FOOD INDUSTRIES) 13-page Supplier Questionnaire (F-CO-063, rect-grid, no AcroForm); supplier บริษัท ไทยเมซ อินกรีเดียนท์ จำกัด (Thai Maize Ingredient Co., Ltd.), product ข้าวโพดบด (Ground Corn / Maize) อาหารสัตว์, นครสวรรค์, est 2552, 300 ตัน/วัน, 120 คน, 08:00-17:00; cover certs HACCP+GMP ticked; SINGLE answer column 'ใช่/ไม่ใช่/NA' (p0 cx603.1, p1-12 cx582.1) filled with centered text — 128 ใช่ on all capability/compliance questions + bullet sub-items + follow-ups (sections 1-13), 15 ไม่ใช่ (allergen sec 8.9+8.9.1-9 = clean corn, food-fraud sec 14.1/2/3/5/6; 14.4 bulk-low-cost=ใช่). Left blank: section/หมวด bars, grey bold sub-headers, column-header rows, 5.25 'โปรดระบุ' specify row, 3 blank allergen rows, signature block. 145 answers + 9 header text + 2 cert ticks, visually verified across all 13 rendered pages.",
+    "defect": "D5 (plans/defects.md): single-answer-column form needs CENTERED text (overlay only left-aligned). Fixed skill: overlay_fill.py now supports text item \"align\":\"center\"/\"right\". See 38_E form-family note for geometry + row classifier (grey sub-header = bold font; answer cells = horizontal dividers crossing the answer column; gate on the รายการตรวจสอบ header row to drop page-0 company block)."
   },
   {
     "id": "dir1/50_E",
     "base": "data/ตัวอย่างข้อมูล",
     "src": "data/ตัวอย่างข้อมูล/01_แบบสอบถามยังไม่กรอก/50_E.pdf",
     "out": "data/ตัวอย่างข้อมูล/ตัวอย่างข้อมูลที่กรอกแล้ว/50_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "Evershining FM-PU-09 6-page feed-ingredient supplier scoring matrix (no AcroForm); supplier บริษัท นครชัยฟีดมิลล์ จำกัด (Nakhon Chai Feed Mill Co., Ltd.), Type of Goods วัตถุดิบอาหารสัตว์ (Feed ingredient), product ปลายข้าว (Broken Rice) อาหารสัตว์, source ในประเทศ (Domestic), date 16/06/2026; cover certs GMP+HACCP ticked (curve boxes cx284.8/471.8); score column '2' (cx455.0) ticked on all 69 answer rows (1.1.1–8.2, incl. recovered 6.3.1) = 71 ticks; grey sub-group/column-header bands, white section-title bars (1.–8.), scoring legend, summary score totals, comment & signature block left blank. Visually verified all 6 rendered pages: ticks dead-center in '2' col, real vector checkmarks, header Thai renders on dotted leaders.",
+    "defect": "D6+D7 (plans/defects.md): inspect_pdf.py missed curve-drawn cert checkboxes (fixed: now scans p.curves) and table rows lacked a header flag (fixed: rows now carry grey:bool). Promoted the scoring-matrix row/column logic into skill helper scripts/fill_scoring_matrix.py (internal-divider OR-gate 477.8|523.6 to cover gaps; skip grey + column-header-text rows). See 50_E form-family note. dir2/dir3 50_E auto-reuse."
   },
   {
     "id": "dir2/9_E",
     "base": "data/ตัวอย่างข้อมูล 2",
     "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/9_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/9_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "Asian Alliance 1-page Supplier Agreement; supplier บริษัท เกรนโปร อกริฟีด จำกัด (GrainPro Agrifeed Co., Ltd.), 142/7 หมู่ 3 จ.สระบุรี, product กากถั่วเหลือง (Soybean Meal) โปรตีน 46%, mfg โรงงานสระบุรี (Saraburi Plant), spec RM-SBM-046/2026, date 16/06/2026; all 7 clauses ticked Accepted/ยอมรับ (left box cx70.2); Supplier-Acknowledge/Approval/signature-Date lines left blank. Visually verified.",
+    "defect": "none (reused 9_E form-family note in plans/defects.md; inspect detected all 14 stroked checkboxes, inline fill per D1 — skip Workflow. No skill script bug)."
   },
   {
     "id": "dir2/10_E",
     "base": "data/ตัวอย่างข้อมูล 2",
     "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/10_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/10_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "MMP International C-TPAT 2-page security audit (FMMR-027 REV.A); supplier บริษัท นครหลวงฟีด จำกัด (Nakhon Luang Feed Co., Ltd.), product ปลาป่น (Fish Meal), rep นายสมชาย วงศ์ทอง, audit date 16/06/2026; all 12 sections ticked S (Satisfactory/Score 1, cx=353.9), one tick per section band (6 p0 + 6 p1); section 6 (Seal) ticked once on p0, p1 17712 continuation left blank; U column / Comment / Inspection-by / Pass-Not Pass boxes blank.",
+    "defect": "none (reused 10_E form-family geometry from plans/defects.md; inline overlay path per D1, skip Workflow; rect-grid → inspect checkboxes=0 expected. No skill script bug)."
   },
   {
     "id": "dir2/11_E",
     "base": "data/ตัวอย่างข้อมูล 2",
     "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/11_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/11_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "SD Guthrie Morakot 16-page Supplier Self Assessment (PR-02-00-16 Rev.12); supplier บริษัท อีสานฟีดมิลล์ จำกัด (Isan Feed Mill Co., Ltd.), 99/5 หมู่ 2 จ.ขอนแก่น, product ปลาป่น (Fish Meal) โปรตีน 60%, source ในประเทศ (Domestic), 210 employees, date 16/06/2026; cover GMP+HACCP certs ticked (cx45.6/107.3, cy513.2); 100 detected Yes-boxes ticked (cx≈293.4) on pages 1-13 + 3 white describe rows 28.2/28.3/28.4 on p14 ticked Yes at row top = 103 Yes ticks; blacked describe rows 18.2/18.3 skipped; Total/Earned/%Score, grade legend, contacts, signature & assessor block left blank. Visually verified all 16 rendered pages.",
+    "defect": "none (reused 11_E form-family note; D2 glyph-checkbox auto-detect worked, inspect found 100 Yes-boxes + certs directly). Path quirk only — work.json src '01_…' folder doesn't exist on disk (real: แบบสอบถามยังไม่กรอก, NFD); resolved via glob. See plans/defects.md 'Worklist note — work.json src paths are stale'."
   },
   {
     "id": "dir2/19_E",
     "base": "data/ตัวอย่างข้อมูล 2",
     "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/19_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/19_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "FoodChain ID Standard Ingredient Form (Non-GMO Project, 5-page AcroForm, 319 fields); ingredient ข้าวโพดบด (Ground Corn), manufacturer บริษัท นครสวรรค์ฟีดมิลล์ จำกัด (Nakhon Sawan Feed Mill Co., Ltd.), Q4 crop source ข้าวโพด (Corn) / origin ประเทศไทย (Thailand). Simple non-GMO mono plant feed ingredient: Q1 No(organic), Q2 No(NGP-verified), Q3 No(GM), Q4 Yes(mono), Q5 No(compound→tables blank), Q6–Q10 No, Q11 No(animal), Q12 No(waterborne), Q13 No(non-biological). Filled via overlay on original (D3): 4 Thai text fields stamped on field /Rect + 13 main-question radios ticked by physical column (Yes=left, No=right) as vector marks. All sub-question radios, Q5 Table1/Table2, Check Box_1 and the signature block left blank. Visually verified all rendered pages — ticks dead-center in correct circles, Thai renders clean.",
+    "defect": "none (reused 19_E form-family note + D3 AcroForm-Thai overlay fix from plans/defects.md; src path stale per worklist note → resolved real folder แบบสอบถามยังไม่กรอก/กรอกแล้ว on disk. No skill script bug)."
   },
   {
     "id": "dir2/37_E",
     "base": "data/ตัวอย่างข้อมูล 2",
     "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/37_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/37_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "BSCM Foods 16-page Procurement supplier questionnaire (FM-PC-002/14(05), rect-grid, no AcroForm); supplier บริษัท สุรินทร์ อะกริฟีด จำกัด (Surin Agrifeed Co., Ltd.), product รำข้าว (Rice Bran) อาหารสัตว์, 159 ม.6 ต.นอกเมือง อ.เมือง จ.สุรินทร์ 32000, contact นายอนุชา พรหมมา, tel 044-511234, date 16/06/2026, self-manufactured (โรงงานสุรินทร์). Clean single-ingredient plant feed: Part1 allergen/contaminant rows all No; '5. suitable for Lacto-ovo/Vegan/Muslim' + '6. free from beef/pork/lamb/chicken' all Yes; building/raw-material/storage/pest/cleaning/calibration/traceability/personnel + all labor-ethics rows Yes (Yes cx361.6/No cx425.4; allergen Yes cx389.9/No cx430.2); raw-mat 'contain allergen/GMO?' (p8) & 'pest outbreak 6mo?' (p10) = No. Identity stamped on idx0+idx3 dotted lines. Left blank: cert table, lab-param/inspection-plan free-text tables (idx4-6), choice/explain rows, specify columns, respondent/verifier signature block. 154 ticks + 17 text, all 16 pages visually verified.",
+    "defect": "none. Reused dir1/37_E (D4) verified tick geometry verbatim — extracted dir1's 154 overlay checkmarks (diagonal stroke pairs → recovered cx,cy_pdf), reused as check items; identity text re-stamped at dir1's dotted-line positions with fresh mock. inspect_pdf.py `tables` (D4) confirmed identical column/row geometry (allergen Yes389.9/No430.2; quality+labor Yes361.6/No425.4). src path stale per worklist note → resolved real folder แบบสอบถามยังไม่กรอก (NFD) via glob. No skill script bug."
   },
   {
     "id": "dir2/38_E",
     "base": "data/ตัวอย่างข้อมูล 2",
     "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/38_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/38_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "PFI (PATTANI FOOD INDUSTRIES) 13-page Supplier Questionnaire (F-CO-063, landscape rect-grid, no AcroForm); supplier บริษัท อีสานเกรน ฟีดมิลล์ จำกัด (Isan Grain Feed Mill Co., Ltd.), 215 หมู่ 4 ต.สำราญ อ.เมือง จ.ขอนแก่น 40000, tel 043-336-720, qa@isangrainfeed.co.th, est 2555, 280 ตัน/วัน, 110 คน, 08:00-17:00, product ข้าวฟ่างบด (Ground Sorghum) อาหารสัตว์ (allergen-free single-ingredient plant feed → keeps reused allergen answers coherent); cover certs HACCP+GMP ticked (cx94.7/146.7, cy279.1); SINGLE answer column ใช่/ไม่ใช่/NA filled CENTERED (p0 cx603.1, p1-12 cx582.1) — 128 ใช่ + 15 ไม่ใช่ = 143 answers (allergen sec 8.9+8.9.1-9 = ไม่ใช่; food-fraud 14.1/2/3/5/6 = ไม่ใช่, 14.4 bulk-low-cost=ใช่). 9 header text + 2 cert ticks. Left blank: section/หมวด bars, grey/bold sub-headers, column-header rows, specify rows, 3 blank allergen rows, signature block. Visually verified all 13 rendered pages.",
+    "defect": "none. Reused dir1/38_E (D5) verified overlay verbatim — extracted dir1's 143 stamped answer words (Tahoma overlay font, separable from AngsanaNew original via fontname) at exact cx/baseline, re-stamped as centered text items; re-derived 9 header fields at dir1 template anchors with fresh sorghum mock; certs from inspect_pdf.py checkboxes (HACCP cx94.7/GMP cx146.7). overlay_fill.py align:center (D5) used. src '01_…' folder stale per worklist note → real folder แบบสอบถามยังไม่กรอก (NFD) resolved via glob. No skill script bug."
   },
   {
     "id": "dir2/50_E",
     "base": "data/ตัวอย่างข้อมูล 2",
     "src": "data/ตัวอย่างข้อมูล 2/01_แบบสอบถามยังไม่กรอก/50_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/50_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "Evershining FM-PU-09 6-page feed-ingredient supplier scoring matrix (no AcroForm); supplier บริษัท บูรพาฟีดมิลล์ จำกัด (Burapha Feed Mill Co., Ltd.), Type of Goods วัตถุดิบอาหารสัตว์ (Feed ingredient), product กากถั่วเหลือง (Soybean Meal) โปรตีน 46%, source ในประเทศ (Domestic), date 16/06/2026; cover certs GMP+HACCP ticked (curve boxes cx284.7/471.8, cy≈532); score column '2' (cx455.0) ticked on all 69 answer rows (1.1.1–8.2, incl. 6.3.1) = 71 ticks; grey sub-group/column-header bands, white section-title bars (1.–8.), 2/1/0 scoring legend, summary score totals, comment & signature block left blank. Visually verified all 6 rendered pages: ticks dead-center in '2' col, real vector checkmarks, header Thai renders on dotted leaders.",
+    "defect": "none. Reused dir1/50_E (D6+D7) form-family template verbatim via promoted helper scripts/fill_scoring_matrix.py — reran with fresh Burapha/Soybean-Meal mock, identical geometry (X2=455.0, DIV 477.8|523.6 OR-gate, grey-skip, GMP/HACCP curve certs). src '01_…' folder stale per worklist note → real folder แบบสอบถามยังไม่กรอก (NFD) on disk. No skill script bug."
   },
   {
     "id": "dir3/9_E",
     "base": "data/ตัวอย่างข้อมูล 3",
     "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/9_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/9_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "Asian Alliance 1-page Supplier Agreement (FM-PU-027/R06/050522); supplier บริษัท โคราชฟีด อินกรีเดียนท์ จำกัด (Korat Feed Ingredient Co., Ltd.), 88 หมู่ 5 ต.จอหอ อ.เมือง จ.นครราชสีมา 30310, product ข้าวโพดบด (Ground Corn) อาหารสัตว์ โปรตีน 8%, mfg โรงงานนครราชสีมา (Korat Plant), spec RM-CN-050/2026, date 16/06/2026; all 7 clauses ticked Accepted/ยอมรับ (left box cx70.2, cy 579.4/502.0/426.4/333.7/288.2/242.1/179.4); Unaccepted boxes + Supplier-Acknowledge/Approval/signature-Date lines left blank. Visually verified at 240dpi — green vector ticks centered in left boxes, Thai header renders on dotted lines.",
+    "defect": "none (reused 9_E form-family note in plans/defects.md; inspect detected all 14 stroked checkboxes, inline overlay fill per D1 — skip Workflow; src '01_…' folder stale per worklist note → real folder แบบสอบถามยังไม่กรอก resolved on disk. No skill script bug)."
   },
   {
     "id": "dir3/10_E",
     "base": "data/ตัวอย่างข้อมูล 3",
     "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/10_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/10_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "MMP International C-TPAT 2-page security audit (FMMR-027 REV.A); supplier บริษัท สุพรรณ อะกริฟีด จำกัด (Suphan Agrifeed Co., Ltd.), product ข้าวโพดบด (Ground Corn), rep นายวีระชัย แสงทอง, audit date 17/06/2026; all 12 sections ticked S (Satisfactory/Score 1, cx=353.9), one tick per section band (6 p0 cy 784.9/658.4/531.8/406.9/276.3/140.4 + 6 p1 cy 876.6/748.8/642.1/536.5/431.0/283.2); section 6 (Seal) p1-top continuation cell left blank; U column / Comment / Inspection-by / Pass-Not Pass boxes blank. Visually verified both rendered pages.",
+    "defect": "none (reused 10_E form-family geometry from plans/defects.md; inline overlay path per D1, skip Workflow; rect-grid → inspect checkboxes=0/tables=0 expected. src '01_…' folder stale per worklist note → real folder แบบสอบถามยังไม่กรอก resolved on disk. No skill script bug)."
   },
   {
     "id": "dir3/11_E",
     "base": "data/ตัวอย่างข้อมูล 3",
     "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/11_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/11_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "SD Guthrie Morakot 16-page Supplier Self Assessment (PR-02-00-16 Rev.12); supplier บริษัท เหนือเกษตรฟีด จำกัด (Nuea Kaset Feed Co., Ltd.), 271 หมู่ 8 ต.หนองหาร อ.สันทราย จ.เชียงใหม่ 50290, product ข้าวโพดบด (Ground Corn) โปรตีน 8%, country of origin ประเทศไทย (Thailand), 175 employees, date 17/06/2026; cover GMP+HACCP certs ticked (cx45.6/107.3, cy513.2); 100 detected Yes-boxes ticked (cx≈293.4) on pages 1-13 + 3 white describe rows 28.2/28.3/28.4 on p14 ticked Yes at row top = 103 Yes ticks; blacked describe rows 18.2/18.3 skipped (no Yes-box); Total/Earned/%Score, grade legend, contacts, signature & assessor block left blank. Visually verified cover/p1/p9(mid)/p14 renders.",
+    "defect": "none (reused 11_E form-family note; D2 glyph-checkbox auto-detect found 100 Yes-boxes + 14 certs directly, no re-derive). src '01_…' folder stale per worklist note → real folder แบบสอบถามยังไม่กรอก (NFD) resolved via glob. Filled-PDF vanished from the blank-form folder right after overlay write (likely a watcher on that dir) → re-ran overlay and moved to out atomically; out persists, check.sh PASS. No skill script bug."
   },
   {
     "id": "dir3/19_E",
     "base": "data/ตัวอย่างข้อมูล 3",
     "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/19_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/19_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "FoodChain ID Standard Ingredient Form (Non-GMO Project, 5-page AcroForm, 319 fields); ingredient มันสำปะหลังเส้น (Cassava Chips), manufacturer บริษัท อีสานคาสซาวา จำกัด (Isan Cassava Co., Ltd.), Q4.1 crop source มันสำปะหลัง (Cassava) / origin ประเทศไทย (Thailand). Simple non-GMO mono plant feed ingredient: Q1 No(organic), Q2 No(NGP-verified), Q3 No(GM), Q4 Yes(mono), Q5 No(compound→tables blank), Q6–Q10 No, Q11 No(animal), Q12 No(waterborne), Q13 No(non-biological). Filled via overlay on original (D3): 4 Thai text fields stamped on field /Rect + 13 main-question radios ticked by physical column (Yes=left, No=right; Q4=left, rest=right) as vector marks. All sub-question radios (q2_2/3, q3_1/1_1, q6_1/2, q7_1/1_1, q8_1/2, q11_1/2/3, q12_1/2), Q5 Table1/Table2, Check Box_1 and the signature block left blank. Visually verified pages 1-4 at 240dpi — ticks on correct circles, Thai renders clean.",
+    "defect": "none (reused 19_E form-family note + D3 AcroForm-Thai overlay fix from plans/defects.md; src '01_…' folder stale per worklist note → real folder แบบสอบถามยังไม่กรอก resolved on disk via glob; radio_q11 export names reversed but ticked by physical column so unaffected. No skill script bug)."
   },
   {
     "id": "dir3/37_E",
     "base": "data/ตัวอย่างข้อมูล 3",
     "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/37_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/37_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "BSCM Foods 16-page Procurement supplier questionnaire (FM-PC-002/14(05), rect-grid, no AcroForm); supplier บริษัท ล้านนาฟีดมิลล์ จำกัด (Lanna Feed Mill Co., Ltd.), product ปลายข้าว (Broken Rice) อาหารสัตว์, 88 หมู่ 4 ต.สันทราย อ.เมือง จ.เชียงราย 57000, contact นางสาวพิมพ์ใจ คำมูล, tel 053-771890, date 17/06/2026, self-manufactured (โรงงานเชียงราย). Clean single-ingredient non-allergen plant feed: Part1 allergen/contaminant rows all No; '5. suitable for Lacto-ovo/Vegan/Muslim' + '6. free from beef/pork/lamb/chicken' all Yes; building/raw-material/storage/pest/cleaning/calibration/traceability/personnel + all labor-ethics rows Yes (Yes cx361.6/No cx425.4; allergen Yes cx389.9/No cx430.2); raw-mat 'contain allergen/GMO?' (p9) & 'pest outbreak 6mo?' (p11) = No. Identity stamped on idx0+idx3 dotted lines. Left blank: cert table, lab-param/inspection-plan free-text tables (idx4-6), choice/explain rows, specify columns, respondent/verifier signature block. 154 ticks + 17 text, all 16 rendered pages visually verified.",
+    "defect": "none. Reused dir1/37_E (D4) verified tick geometry verbatim — extracted dir1's 154 overlay checkmarks (diagonal stroke pairs → recovered cx,cy_pdf), reused as check items; identity text re-stamped at dir1's dotted-line positions with fresh mock (Lanna Feed Mill / Broken Rice, varied from dir1 Cassava / dir2 Rice Bran, still non-allergen so reused No-allergen pattern stays coherent). src path stale per worklist note → resolved real folder แบบสอบถามยังไม่กรอก (NFD) via glob. No skill script bug."
   },
   {
     "id": "dir3/38_E",
     "base": "data/ตัวอย่างข้อมูล 3",
     "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/38_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/38_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "PFI (PATTANI FOOD INDUSTRIES) 13-page Supplier Questionnaire (F-CO-063, landscape rect-grid, no AcroForm); supplier บริษัท เพชรบูรณ์ ฟีด อินกรีเดียนท์ จำกัด (Phetchabun Feed Ingredient Co., Ltd.), 199 หมู่ 7 ต.สะเดียง อ.เมือง จ.เพชรบูรณ์ 67000, tel 056-721-450, qa@phetchabunfeed.co.th, est 2558, 320 ตัน/วัน, 135 คน, 08:00-17:00, product มันสำปะหลังอัดเม็ด (Cassava Pellets) อาหารสัตว์ (allergen-free single-ingredient plant feed → keeps reused allergen answers coherent); cover certs HACCP+GMP ticked (cx94.7/146.7, cy279.1); SINGLE answer column ใช่/ไม่ใช่/NA filled CENTERED (p0 cx603.1, p1-12 cx582.1) — 128 ใช่ + 15 ไม่ใช่ = 143 answers (allergen sec 8.9+8.9.1-9 = ไม่ใช่; food-fraud 14.1/2/3/5/6 = ไม่ใช่, 14.4 bulk-low-cost=ใช่). 9 header text + 2 cert ticks. Left blank: section/หมวด bars, grey/bold sub-headers, column-header rows, specify rows, 3 blank allergen rows, signature block. Visually verified p0 (header+certs), p9 (allergen all ไม่ใช่), p13 (sec14 incl 14.4=ใช่ + blank signature).",
+    "defect": "none. Reused dir1/38_E (D5) + dir2/38_E verified overlay verbatim — extracted dir2's 143 stamped answer words (AAAAAA+Tahoma overlay font, separable from AngsanaNew original via fontname) at exact cx/baseline, re-stamped as centered text items; templates confirmed byte-identical (extract_text equal across all 13 pages dir2 src vs dir3 src) so coords transfer exactly. Re-derived 9 header fields at dir2 anchors (x0/baseline) with fresh Phetchabun/Cassava-Pellets mock; certs from vector check strokes (HACCP cx94.7/GMP cx146.7, cy279.1). overlay_fill.py align:center (D5) used. src '01_…' folder stale per worklist note → real folder แบบสอบถามยังไม่กรอก resolved on disk. No skill script bug."
   },
   {
     "id": "dir3/50_E",
     "base": "data/ตัวอย่างข้อมูล 3",
     "src": "data/ตัวอย่างข้อมูล 3/01_แบบสอบถามยังไม่กรอก/50_E.pdf",
     "out": "data/ตัวอย่างข้อมูล 3/ตัวอย่างข้อมูลที่กรอกแล้ว/50_E.pdf",
-    "passes": false,
-    "mock": "",
-    "defect": ""
+    "passes": true,
+    "mock": "Evershining FM-PU-09 6-page feed-ingredient supplier scoring matrix (no AcroForm); supplier บริษัท พะเยาฟีดมิลล์ จำกัด (Phayao Feed Mill Co., Ltd.), Type of Goods วัตถุดิบอาหารสัตว์ (Feed ingredient), product ข้าวโพดบด (Ground Corn) อาหารสัตว์, source ในประเทศ (Domestic), date 17/06/2026; cover certs GMP+HACCP ticked (curve boxes cx284.7/471.8, cy≈532); score column '2' (cx455.0) ticked on all 69 answer rows (1.1.1–8.2, incl. 6.3.1) = 71 ticks; grey sub-group/column-header bands, white section-title bars (1.–8.), 2/1/0 scoring legend, summary score totals (100), comment & signature block left blank. Visually verified all 6 rendered pages: ticks dead-center in '2' col, real green vector checkmarks, header Thai renders on dotted leaders.",
+    "defect": "none. Reused dir1/50_E (D6+D7) form-family template verbatim via promoted helper scripts/fill_scoring_matrix.py — reran with fresh Phayao/Ground-Corn mock (varied from dir1 Broken Rice, dir2 Soybean Meal), identical geometry (X2=455.0, DIV 477.8|523.6 OR-gate, grey-skip, GMP/HACCP curve certs). src '01_…' folder stale per worklist note → real folder แบบสอบถามยังไม่กรอก (NFD) on disk. No skill script bug."
   }
 ]

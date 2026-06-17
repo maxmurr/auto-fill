@@ -14,6 +14,10 @@ Fill a blank PDF form with **mock** answers stamped as an overlay on the
   nearby label. Writes `/tmp/<stem>.anchors.json` + a stdout summary.
 - `scripts/overlay_fill.py` — stamps a `fills.json` (text + tick/cross/circle
   marks) onto the original, font-independent.
+- `scripts/acroform_fields.py` — for interactive PDFs: emits each field's
+  geometry (text `/Rect`; radio/checkbox kid columns with on-states, ordered
+  left→right) so the flatten-then-overlay path needs no hand-derived coords.
+  Writes `/tmp/<stem>.acro.json` + a stdout summary.
 
 ## Quick start
 

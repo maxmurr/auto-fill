@@ -45,8 +45,11 @@ export async function POST(req: NextRequest) {
       jobId,
       pdfPath,
       anchorsPath: path.join(dir, "anchors.json"),
+      acroPath: path.join(dir, "acroform.json"),
+      flatPath: path.join(dir, "flat.pdf"),
       fillsPath: path.join(dir, "fills.json"),
       outPath: path.join(dir, downloadName),
+      dir,
       stem,
     },
   ]);

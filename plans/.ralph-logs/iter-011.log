@@ -1,0 +1,8 @@
+`dir2/50_E` not flagged by gate — only dir3 items show `MISSING [false]` (expected, still `passes:false`). My item passed: valid PDF, overlay present, sized. CHECK_FAIL only from remaining dir3 work.
+
+**Done — `dir2/50_E`:**
+- Reused dir1/50_E form-family template via promoted helper `scripts/fill_scoring_matrix.py` (no skill bug). Fresh mock: บริษัท บูรพาฟีดมิลล์ จำกัด / กากถั่วเหลือง (Soybean Meal) 46% / Domestic.
+- 71 ticks (69 answer rows "2" col + GMP + HACCP). All 6 pages rendered + visually verified: ticks dead-center, real vector checkmarks, header Thai on dotted leaders, grey/legend/summary/signature blank.
+- Filed → `data/ตัวอย่างข้อมูล 2/ตัวอย่างข้อมูลที่กรอกแล้ว/50_E.pdf`. `passes:true` set.
+
+Stop. Loop relaunches for `dir3/9_E`.

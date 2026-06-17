@@ -154,6 +154,54 @@ before the Ralph loop existed. Kept here so the loop knows the current state.
   Position/Date Signed/Company Name) blank. No script bug — see D3 for the
   AcroForm-Thai fix.
 
+### D4 — `dir1/37_E` — rect-grid Yes/No matrix undetected (`checkboxes=0`); promoted grid logic into the skill
+- **Symptom:** `37_E.pdf` (16-page BSCM Foods questionnaire) is a multi-section
+  Yes/No/specify matrix drawn entirely as thin `rects`/`lines` — no checkbox
+  squares and no AcroForm. `inspect_pdf.py` reported `checkboxes=0` on every page,
+  so the answer-cell column centers + row y-bands had to be re-derived by hand
+  (same as `10_E`). This is the **recurrence** the seeded defect #2 note warned
+  about ("if the loop keeps re-deriving it per form, promote that logic").
+- **Root cause:** `inspect_pdf.py` only emitted `blanks` + `checkboxes`; it had no
+  notion of a ruled answer **grid**, so any rect-grid matrix produced nothing
+  tickable.
+- **Fix (skill):** added rect-grid **table detection** to `inspect_pdf.py`. It now
+  reconstructs column edges (vertical lines/rects drawn ≥3× = one per row) and row
+  borders (horizontal segments merged collinearly that span the table width), and
+  emits a `tables` array per page: each table has `columns` (`x0/x1/cx` + detected
+  `header` words, e.g. `ใช่ (Yes)` / `ไม่ใช่ (No)`) and `rows`
+  (`top/bottom/cy_pdf/h/label_left`). On `37_E` this reproduces the hand-derived
+  geometry exactly (allergen pages Yes cx=389.9 / No cx=430.2; quality+labor pages
+  Yes cx=361.6 / No cx=425.4). Verified **additive**: `9_E` (stroked boxes) →
+  `tables=0`, `11_E`/`19_E` still detect their checkboxes/AcroForm fields. So
+  `dir2/dir3 37_E` (and the `10_E` family) now get tick geometry straight from
+  inspect — pass row `cy_pdf` as the check `cy`, column `cx` as `cx`.
+
+### Note on this form family (37_E = BSCM Foods "Procurement Questionnaire")
+- `37_E.pdf` is a **16-page BSCM Foods CO., LTD. Procurement supplier
+  questionnaire** (FM-PC-002/14(05)), **not** the Evershining scoring matrix.
+  Page 595.32×841.92, no AcroForm, rect-grid (use the new `tables` output, D4).
+  Sections: **Part 1 (allergen/contaminant)** = idx 0–3 (Yes `ใช่` cx=390 / No
+  `ไม่ใช่` cx=430.2 / "If Yes specify"); **identity** idx 0 top box + idx 3
+  Part-2 block (company/date/address/contact/tel/fax/email/product +
+  manufacturer block); **General info + cert table** idx 4 (free text);
+  **lab-params / external-labs / inspection-plan** idx 5–6 (free text);
+  **quality matrices** idx 7–12 (building structure, raw material/process,
+  release/storage, pest/glass/cleaning, chem/calibration/traceability,
+  personnel/complaint/ethics — Yes cx=361.6 / No cx=425.4); **labor matrices**
+  idx 13–15; **signature block** idx 15 bottom.
+- **Coherent answer logic** (for a clean single-ingredient plant feed product):
+  allergen/contaminant "does it CONTAIN X?" rows → tick **No**; the
+  "5. suitable for vegetarian/vegan/Muslim?" and "6. free from beef/pork/lamb/
+  chicken?" groups → tick **Yes**; all quality + labor capability/compliance
+  rows → tick **Yes**; the one operational "raw materials contain allergen/GMO?"
+  (idx 8) and "pest outbreak in last 6 months?" (idx 10) → **No**.
+  **Skip** (leave blank): grey section-title bars, the repeated column-header row,
+  pure choice rows ("self / external — specify"), pure explain/how/list rows
+  ("อธิบาย…", storage-location □ list, personnel-hygiene □ PPE list), the
+  free-text tables (idx 4–6), all "specify" columns, and the respondent/verifier
+  signature block. Rows that START with `มี` (have/there-is) count as Yes even
+  when they trail `…อย่างไร/กี่ครั้ง`.
+
 ### Note on this form family (11_E = SD Guthrie Morakot "Supplier Self Assessment")
 - `11_E.pdf` is a **16-page SD Guthrie International Morakot** *Supplier Self
   Assessment Questionnaire* (PR-02-00-16 Rev.12). Page 595.44×841.68.
@@ -174,3 +222,151 @@ before the Ralph loop existed. Kept here so the loop knows the current state.
   `p.chars`). Leave Total/Earned/%Score, grade legend, contacts, signature and the
   assessor block blank. Now that D2 is fixed, dir2/dir3 11_E can read boxes from
   inspect directly instead of re-deriving geometry.
+- **dir2/11_E confirm (D2 auto-detect worked):** inspect found **100 Yes-boxes**
+  on pages 1–13 (tick each at its `cx≈293.4`/`cy_pdf`) + the 14 cover certs. Of
+  the 105 decimal-numbered rows, **5 carry no ☐ glyph**: 28.2/28.3/28.4 (page 14,
+  Yes/No cells **white** → tick Yes once at row top, `cx=293.4`, `cy≈H-top-12`) and
+  **18.2/18.3** (Yes/No/N/A cells **blacked out** by the form, describe-only → leave
+  blank). So tick-rule = "every detected Yes-box + the 3 white describe rows on
+  p14"; skip blacked describe rows. Matches the verified dir1 render exactly.
+
+### Worklist note — work.json `src` paths are stale; resolve on disk
+- **Symptom:** every `work.json` `src` is `…/01_แบบสอบถามยังไม่กรอก/<f>.pdf`, but on
+  disk the dir2 (and dir3) blank-form folder is **`แบบสอบถามยังไม่กรอก` (no `01_`
+  prefix)**, and macOS stores the Thai name **NFD-normalized** while string
+  literals here are NFC. `os.path.exists`/`open` on the literal `src` fails
+  (`FileNotFoundError`) even though `ls`/`pdfplumber` from a shell arg succeed.
+- **What to do:** don't trust `work.json`/anchors `src` verbatim for `open()`.
+  Resolve the real path on disk first, e.g.
+  `glob.glob(f"{base}/*/<stem>.pdf")` (drop the `…กรอกแล้ว` output folder), or walk
+  `os.listdir` comparing `unicodedata.normalize("NFC", entry)`. Pass that resolved
+  absolute path as `src`/`out` in fills.json. Not a skill-script bug — a data/path
+  quirk that will recur for **all remaining dir2/dir3 items**.
+
+### D5 — `dir1/38_E` — single-answer-column form needs **centered** stamped text (overlay only left-aligned)
+- **Symptom:** `38_E.pdf` (13-page PFI questionnaire) answers go in ONE column
+  headed `ใช่ / ไม่ใช่ / NA` — the respondent writes the *word* `ใช่`/`ไม่ใช่`, not
+  a tick in a per-option column. `overlay_fill.py` text items only `drawString`
+  (left-anchored), so a word stamped at the column center spills right of center
+  and reads as misaligned in narrow cells.
+- **Root cause:** no horizontal-alignment option on `kind:"text"` items.
+- **Fix (skill):** `overlay_fill.py` text branch now honors `"align"`:
+  `"center"`→`drawCentredString`, `"right"`→`drawRightString`, default left.
+  Pass `x` = cell center cx, `align:"center"` to drop an answer word dead-center
+  in a single-answer grid column. Additive, font-independent. Benefits any future
+  form with a write-the-answer column.
+
+### Note on this form family (38_E = PFI "Supplier Questionnaire", F-CO-063)
+- `38_E.pdf` is a **13-page PATTANI FOOD INDUSTRIES (PFI)** *Supplier
+  Questionnaire* (F-CO-063 คร./issue 6), **landscape 841.92×595.32**, no AcroForm,
+  rect-grid. Columns: `ข้อ` (no.) | `รายการตรวจสอบ` (item) | **`ใช่/ไม่ใช่/NA`
+  (SINGLE answer column)** | `รายละเอียดเพิ่มเติม` (details). Page 0 = PFI
+  letterhead + company-info block (ชื่อ/ที่อยู่/โทร/Email/ปีที่ก่อตั้ง/กำลังการ
+  ผลิต/จำนวนคนงาน/ช่วงเวลาทำงาน/ชนิดของผลิตภัณฑ์) + cert checkboxes (stroked
+  squares: HACCP cx94.7 / GMP cx146.7 / ISO9001 / ISO22000 / BRCGS / อื่นๆ, all
+  cy≈279) then sections 1–14 spanning to p12.
+- **Answer-column geometry (same template, but the page-0 grid is shifted ~21pt):**
+  answer cx = **603.1 on page 0**, **582.1 on pages 1–12**. Don't trust one cx
+  across pages — derive per page from the two vertical dividers bounding the 3rd
+  column (p0 568.4/638.0; p1-12 547.6/616.7).
+- **Reusable row classifier (no checkbox/AcroForm to read):** the answer *cells*
+  are the bands between **horizontal dividers that cross the answer column** (thin
+  `lines`/`rects` spanning the column center). Per cell:
+  - **skip** the page-header band (`F-CO-063`), the `รายการตรวจสอบ` column-header
+    row (also the only **grey-filled** band, nsc≈0.851), any `ส่วนที่ N`/`หมวดที่ N`
+    section bar, **bold-font** sub-group headers (`AngsanaNew-Bold`: อาคารสถานที่,
+    วัตถุดิบ, พื้น ผนัง…, การควบคุมสัตว์พาหะ, …), pure `โปรดระบุ` specify rows
+    (5.25), blank rows, and the signature block (`ลงชื่อ`/`SUPPLIER`).
+  - **gate** answers to cells *after* the `รายการตรวจสอบ` header row on each page
+    (drops the page-0 company-info block, whose full-width rules also cross the
+    answer column).
+  - everything else (decimal `N.M`/`N.M.K` numbered questions, `-`/`–`/`−` bullet
+    sub-items, and **regular-font** un-numbered follow-ups like `ถ้าใช่…`) → answer.
+  - **WATCH:** matching the page header by the substring `หนา้` false-positives on
+    `หน้างาน`/`หน้าต่าง`/`เจ้าหน้าที่` — match the header band by `F-CO-063` only.
+- **Coherent answer logic (clean single-ingredient plant feed, e.g. corn):**
+  every capability/compliance question + bullet → **ใช่**; allergen-presence
+  section **8.9** and **8.9.1–8.9.9** (wheat/soy/egg/milk/peanut/fish/shellfish/
+  nut/SO₂) → **ไม่ใช่** (corn carries none; leave the 3 trailing blank allergen
+  rows empty); food-fraud-vulnerability section **14** → **ไม่ใช่** for the risk
+  factors 14.1/2/3/5/6, **ใช่** only for 14.4 (bulk, low variable cost = true).
+  Leave the `รายละเอียดเพิ่มเติม` details column + signature block blank.
+- **dir2/dir3 38_E** are the same template — reuse this geometry + classifier; only
+  vary the mock supplier/product so files don't look identical.
+
+### D6 — `dir1/50_E` — `inspect_pdf.py` misses **curve-drawn** checkboxes (cert boxes)
+- **Symptom:** `50_E.pdf` cover certs (ISO/GMP/HACCP/ISO สิ่งแวดล้อม/อื่นๆ) are
+  rounded-square boxes drawn as `curves`, not stroked `rects` or `☐` glyphs, so
+  the rect detector (seeded #2) and the glyph detector (D2) both found nothing —
+  `checkboxes=0` on page 0.
+- **Root cause:** the checkbox scan only looked at `p.rects` + `p.chars`; a box
+  rendered as a rounded rectangle is a `curve` object with no rect/glyph at all.
+- **Fix (skill):** `inspect_pdf.py` now also scans `p.curves` for near-square
+  stroked boxes (8–26 × 8–22, ar 0.6–2.0), deduped against rect/glyph boxes.
+  50_E p0 now reports the cert boxes (GMP cx=284.8, HACCP cx=471.8, cy≈532;
+  ISO/อื่นๆ at cx≈60.5/284.8). Verified additive: 9_E/10_E/11_E/19_E/37_E/38_E
+  checkbox+table counts unchanged. Concentric curve pairs may emit 2 entries per
+  box — harmless (caller selects by cx).
+
+### D7 — `dir1/50_E` — table rows had no header flag → callers re-derived grey skips
+- **Symptom:** the scoring-matrix shades sub-group headers, section-title-ish
+  bands and the column-header (`Evaluations`/`คะแนน/Point`/`2-1-0`) rows grey, but
+  `inspect_pdf.py`'s `tables.rows` emitted every band undistinguished, so every
+  caller had to recompute which rows are headers vs answer rows.
+- **Fix (skill):** each `tables.rows[]` now carries `"grey": bool` — true when the
+  band overlaps a wide greyish filled rect (RGB ~0.55–0.92, near-neutral). Skip
+  grey rows when ticking. Additive field; existing callers unaffected.
+
+### Note on this form family (50_E = Evershining "FM-PU-09" supplier scoring matrix)
+- `50_E.pdf` IS the 6-page Evershining feed-ingredient scoring matrix task.md
+  describes (the seeded #1–5 trial form). Page 595.28×841.89, no AcroForm.
+  Page 0 = header block (Supplier Name / วันที่ Date / Type of Goods / Product
+  name / Source of raw materials) + cert curve-boxes + section 1 start; sections
+  1–8 run to page 5; page 5 also holds the scoring legend (`2/1/0 หมายถึง…`),
+  `สรุปผลการประเมิน` summary (คะแนนเต็ม / คะแนนที่ได้) and the signature block.
+- **Score columns** `คะแนน/Point` = `2 / 1 / 0`. Vertical edges 432.1 | **477.8**
+  | **523.6** | 569.3 → **"2" col cx = 455.0** (tick this), "1" cx=500.7,
+  "0" cx=546.5. Tick **"2"** on every answer row (positive score, per task.md).
+- **Reusable row classifier** (`scripts/fill_scoring_matrix.py`, the promoted
+  helper): an answer cell = a horizontal-border band crossed by an **internal**
+  score divider (477.8 OR 523.6 — OR them: each has rendering gaps, e.g. 6.3.1 is
+  missed by 477.8 but covered by 523.6). Do **NOT** gate on the outer edges
+  432.1/569.3 — they run the full form height and would catch the page-0 header
+  block and the **white** section-title bars (`1.`…`8.`, `เอกสาร…`). Then **skip**:
+  grey bands (sub-group headers `1.1/1.2/1.2.1…`, the `2-1-0` header which is the
+  darker grey 0.651), and any band whose left label contains a column-header word
+  (`ประเมิน`/`ประเมนิ`/`Evaluatio`/`คะแนน`/`Point`). Yields **69 answer rows**
+  (1.1.1…8.2) + GMP + HACCP = **71 ticks**.
+- **Certs:** tick **GMP (cx=284.8)** + **HACCP (cx=471.8)** at cy≈532 (row 1).
+  Leave ISO / ISO สิ่งแวดล้อม / อื่นๆ blank.
+- **Header text** stamped on the dotted leaders just right of each label word
+  (overlay, font:"thai"). Leave the scoring legend, summary score totals,
+  comment and the signature block blank (auditor fills).
+- **Helper:** `python3 scripts/fill_scoring_matrix.py SRC.pdf OUT_fills.json
+  '{"supplier":…,"date":…,"goods":…,"product":…,"source":…}'` → writes a
+  ready-to-stamp fills.json (out path = `<name>_Filled.pdf` beside src), then
+  `overlay_fill.py`. **dir2/dir3 50_E** are the identical template — rerun the
+  helper, vary only the mock supplier/product.
+
+### D8 — web app ran a stale fork of the engine; resynced + added AcroForm geometry helper
+- **Symptom:** the Next.js app (`src/lib/autofill/`) shelled out to its own
+  `pyscripts/inspect_pdf.py` + `overlay_fill.py`, a copy frozen at the initial
+  build (commit 9a4e33c). It predated every Ralph-loop fix — no glyph boxes (D2),
+  no curve boxes (D6), no rect-grid `tables` (D4/D7), no text `align` (D5), no
+  ValueError guards. So the app silently produced nothing tickable on the matrix
+  forms (10/37/38/50_E) and nothing at all on the AcroForm form (19_E).
+- **Root cause:** two divergent copies of the engine; only the skill's copy got
+  the fixes. Classic drift.
+- **Fix:** the app now runs the skill's `scripts/` directly (`python.ts`
+  `SCRIPTS` → `.claude/skills/auto-fill-pdf/scripts`, overridable via
+  `AUTOFILL_SCRIPTS_DIR`). Deleted `pyscripts/`. The TS pipeline now consumes
+  `tables` (tick column `cx` / row `cy_pdf`, skip grey rows) and has a real
+  AcroForm branch: flatten (`qpdf --flatten-annotations=all`) → overlay text on
+  each field `/Rect` + ticks on the chosen radio kid by physical column → Thai
+  via overlay, never pypdf (D3). Added a verify phase (pdftoppm render surfaced
+  in the UI). One engine for both the skill and the app from here.
+- **New skill script:** `scripts/acroform_fields.py` (used by the app's AcroForm
+  branch, also handy inline) emits field geometry — text `/Rect` + radio kid
+  columns with on-states, ordered left→right. Verified on 19_E: 319 fields
+  (108 text/choice, 211 button groups); flatten+overlay tick lands inside the
+  Yes circle (cx≈480.7 = left column) and Thai header text renders, no tofu.

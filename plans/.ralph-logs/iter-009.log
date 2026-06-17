@@ -1,0 +1,13 @@
+Done. One item, verified, stopped.
+
+**dir2/37_E** — BSCM Foods 16-page procurement questionnaire.
+
+What happened:
+- Resolved stale src (real folder `แบบสอบถามยังไม่กรอก`, NFD, no `01_` per worklist note).
+- Identical template to verified dir1/37_E → extracted dir1's **154 overlay checkmarks** (diagonal stroke pairs → recovered exact `cx`/`cy_pdf`) and reused as check items; re-stamped identity text at dir1's dotted-line positions with fresh mock.
+- Mock: **บริษัท สุรินทร์ อะกริฟีด จำกัด (Surin Agrifeed) / รำข้าว (Rice Bran)** — distinct from siblings, clean single-ingredient plant feed.
+- Answer logic (verbatim from D4 family note, coherent for Rice Bran): Part1 allergen rows → No; vegetarian/Muslim-suitable + free-from-meat → Yes; quality/labor → Yes; allergen-GMO (p8) + pest-outbreak (p10) → No.
+- Verified all 16 rendered pages: real vector ticks dead-center in correct columns/rows, headers + free-text pages (idx4–6) + signature block blank, identity on dotted leaders.
+- Moved to out path; check.sh reports it valid on disk.
+
+No new skill defect — reused inspect_pdf.py `tables` (D4) + dir1 geometry. work.json: **12/21 pass**. Next: dir2/38_E.

@@ -1,4 +1,10 @@
-import type { InspectResult, Suggestion } from "./schemas";
+import type {
+  AcroResult,
+  AcroSuggestion,
+  InspectResult,
+  Suggestion,
+  Table,
+} from "./schemas";
 
 export type OverlayItem =
   | {
@@ -9,8 +15,19 @@ export type OverlayItem =
       text: string;
       font: string;
       size: number;
+      align?: "left" | "center" | "right";
     }
-  | { page: number; kind: "check"; cx: number; cy: number; size: number; font: string };
+  | {
+      page: number;
+      kind: "check";
+      cx: number;
+      cy: number;
+      size: number;
+      font: string;
+      mark?: string;
+      w?: number;
+      h?: number;
+    };
 
 export type OverlaySpec = { src: string; out: string; items: OverlayItem[] };
 
@@ -21,6 +38,10 @@ export type Assembled = {
   boxesTicked: number;
 };
 
+const isThai = (s: string) => /[฀-๿]/.test(s);
+const clamp = (v: number, lo: number, hi: number) =>
+  Math.max(lo, Math.min(hi, v));
+
 /** Turn anchor coords + model suggestions into an overlay_fill.py spec. */
 export function assemble(
   ins: InspectResult,
@@ -30,9 +51,19 @@ export function assemble(
 ): Assembled {
   const fieldById = new Map(ins.fields.map((f) => [f.id, f]));
   const boxById = new Map(ins.checkboxes.map((c) => [c.id, c]));
+  const rowById = new Map(
+    ins.tables.flatMap((t) => t.rows.map((r) => [r.id, r] as const)),
+  );
+  const colById = new Map(
+    ins.tables.flatMap((t: Table) =>
+      t.columns.map((c) => [c.id, c] as const),
+    ),
+  );
 
   const textItems: OverlayItem[] = [];
+  const checkItems: OverlayItem[] = [];
   const preview: { label: string; value: string }[] = [];
+
   for (const v of sug.values) {
     const f = fieldById.get(v.id);
     if (!f || !v.value.trim()) continue;
@@ -48,9 +79,9 @@ export function assemble(
     preview.push({ label: f.label, value: v.value });
   }
 
-  // De-dupe chosen boxes (model may repeat) and stamp one tick each.
+  // De-dupe chosen boxes (model may repeat) and stamp one tick each, sized to
+  // the detected box so the mark lands inside it.
   const seen = new Set<string>();
-  const checkItems: OverlayItem[] = [];
   for (const ch of sug.checks) {
     const c = boxById.get(ch.id);
     if (!c || seen.has(c.id)) continue;
@@ -60,9 +91,109 @@ export function assemble(
       kind: "check",
       cx: c.cx,
       cy: c.cy,
-      size: 10,
+      size: clamp(c.size, 8, 14),
       font: "thai",
     });
+    if (c.label) preview.push({ label: c.label, value: "✓" });
+  }
+
+  // Table cells: tick a ✓ in an option column, or write a word centered in a
+  // single combined answer column.
+  const seenCell = new Set<string>();
+  for (const m of sug.tableMarks) {
+    const r = rowById.get(m.rowId);
+    const col = colById.get(m.columnId);
+    if (!r || !col) continue;
+    const key = `${m.rowId}:${m.columnId}`;
+    if (seenCell.has(key)) continue;
+    seenCell.add(key);
+
+    if (m.mark === "text" && m.text.trim()) {
+      const size = 9;
+      textItems.push({
+        page: r.page,
+        kind: "text",
+        x: col.cx,
+        baseline: r.cy - size * 0.33,
+        text: m.text,
+        font: isThai(m.text) ? "thai" : "latin",
+        size,
+        align: "center",
+      });
+      preview.push({ label: r.label, value: m.text });
+    } else {
+      checkItems.push({
+        page: r.page,
+        kind: "check",
+        cx: col.cx,
+        cy: r.cy,
+        size: clamp(r.h, 8, 12),
+        font: "thai",
+        mark: "✓",
+      });
+      preview.push({ label: r.label, value: col.header || "✓" });
+    }
+  }
+
+  return {
+    spec: { src, out, items: [...textItems, ...checkItems] },
+    preview,
+    fieldsFilled: textItems.length,
+    boxesTicked: checkItems.length,
+  };
+}
+
+/**
+ * Assemble an overlay for the AcroForm path: text values stamped on each field's
+ * /Rect, radios/checkboxes ticked at the chosen option's column center. Stamped
+ * onto the FLATTENED PDF (src) so widget appearances don't occlude the marks.
+ */
+export function assembleAcroform(
+  acro: AcroResult,
+  sug: AcroSuggestion,
+  src: string,
+  out: string,
+): Assembled {
+  const textByName = new Map(acro.texts.map((t) => [t.name, t]));
+  const btnByName = new Map(acro.buttons.map((b) => [b.name, b]));
+
+  const textItems: OverlayItem[] = [];
+  const checkItems: OverlayItem[] = [];
+  const preview: { label: string; value: string }[] = [];
+
+  for (const v of sug.texts) {
+    const f = textByName.get(v.name);
+    if (!f || !v.value.trim()) continue;
+    const [x0, y0, , y1] = f.rect;
+    const size = clamp(y1 - y0 - 3, 7, 11);
+    textItems.push({
+      page: f.page,
+      kind: "text",
+      x: x0 + 3,
+      baseline: y0 + 3,
+      text: v.value,
+      font: v.font,
+      size,
+    });
+    preview.push({ label: f.label || f.name, value: v.value });
+  }
+
+  const seen = new Set<string>();
+  for (const b of sug.buttons) {
+    const f = btnByName.get(b.name);
+    if (!f || !f.options.length || seen.has(b.name)) continue;
+    seen.add(b.name);
+    const opt = f.options[clamp(b.optionIndex, 0, f.options.length - 1)];
+    checkItems.push({
+      page: opt.page,
+      kind: "check",
+      cx: opt.cx,
+      cy: opt.cy,
+      size: clamp(Math.min(opt.w, opt.h), 8, 14),
+      font: "thai",
+      mark: "✓",
+    });
+    if (f.label) preview.push({ label: f.label, value: "✓" });
   }
 
   return {

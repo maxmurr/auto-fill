@@ -80,6 +80,12 @@ for pg in w.pages:
                                          "CheckboxField": "/Yes"})
 with open("in_Filled.pdf","wb") as f: w.write(f)
 ```
+> **Helper:** `python3 scripts/acroform_fields.py SRC.pdf [OUT.json]` dumps every
+> field's geometry — text fields as `rect:[x0,y0,x1,y1]` (PDF bottom-left, stamp
+> at `x0+3`/`y0+3`), button groups as `options[]` (each kid's `on_state` + center
+> `cx,cy` + `w,h`, **sorted left→right by column**). Pick radios by `cx` (physical
+> column), not `on_state`. Feeds straight into a flatten-then-overlay pass.
+
 Checkbox on-state name varies (`/Yes`, `/On`, …); read it from the field's
 `/_States_` via `r.get_fields()`. Radio groups: tick by **physical column**, not
 by export-name — read each kid widget's `/Rect` (`/Kids[*]` of the `/Btn`) and

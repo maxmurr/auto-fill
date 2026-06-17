@@ -1,0 +1,9 @@
+Done. `dir2/38_E` filled, verified, moved, marked `passes:true`.
+
+- **Reuse:** extracted dir1/38_E's 143 stamped answer words (Tahoma overlay vs AngsanaNew original — separable by fontname) at exact cx/baseline → re-stamped verbatim. Identical yes/no logic per template.
+- **New mock:** sorghum supplier (อีสานเกรน ฟีดมิลล์ / Ground Sorghum) — allergen-free single-ingredient plant feed, so reused allergen-section ไม่ใช่ answers stay coherent. 9 header fields re-derived at dir1 template anchors.
+- **Certs:** HACCP+GMP ticked (inspect cx94.7/146.7, cy279.1).
+- **Verified** all 13 pages: header on dotted lines, answers centered in single column, allergen 8.9.x all ไม่ใช่, food-fraud 14.4=ใช่ rest ไม่ใช่, signature block blank, no tofu.
+- **Defect:** none — pure reuse of D5 fix. No skill script change.
+
+check.sh: dir2/38_E not flagged (passes gate). CHECK_FAIL is global — remaining `passes:false` items (dir2/50_E, all dir3). Loop continues. Stop.

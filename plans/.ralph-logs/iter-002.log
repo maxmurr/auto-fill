@@ -1,9 +1,6 @@
-Item `dir1/10_E` done. `10_E.pdf` not in MISSING list → my set is valid (2/21 filled & valid). `CHECK_FAIL` only because 19 items remain — loop continues.
+Done. **dir3/10_E** filled, verified, moved, marked `passes:true`.
 
-Iteration summary:
-- **Form:** MMP International C-TPAT security audit (2-page, FMMR-027). New family — not Evershining. Columns `S`(Score 1)/`U`(Score 0)/Comment, one tall cell per section.
-- **Filled:** header (Asia Protein Feed / Soybean Meal / นางสาวปราณี ศรีสุข / 15/06/2026) + 12 S-column ✓ ticks (one per section). Comment/Inspection-by/Pass boxes blank.
-- **Verified:** rendered both pages — text on lines, real vector ticks centered in S column, correct rows.
-- **Moved** to out, set `passes:true`, logged reusable 10_E geometry in defects.md for dir2/dir3. No skill bug.
+- Gate: 16/21 valid (was 15). dir3/10_E **not** in MISSING list → no over-claim.
+- Remaining 5 (`passes:false`): dir3 11_E/19_E/37_E/38_E/50_E. CHECK_FAIL expected — loop continues.
 
-Stop.
+Mock: MMP C-TPAT audit, supplier บริษัท สุพรรณ อะกริฟีด จำกัด, product ข้าวโพดบด, all 12 sections = S. Reused 10_E geometry (cx=353.9), inline path per D1. No skill bug. Stop.

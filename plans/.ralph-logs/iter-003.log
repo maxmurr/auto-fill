@@ -1,11 +1,8 @@
-Done with `dir1/11_E`. Item verified valid by gate (counted in "filled & valid: 3/21"; no INVALID/TOO_SMALL/NO_OVERLAY). `CHECK_FAIL` is expected — 18 items still `passes:false`.
+Done. `dir3/11_E` complete.
 
-**Summary — `dir1/11_E`:**
-- Form: SD Guthrie Morakot 16-page *Supplier Self Assessment* (≠ Evershining matrix; new family).
-- Filled: cover header (Siam Agri Feed, Soybean Meal 46%, Domestic, 145 emp, 16/06/2026) on dotted leaders; **GMP+HACCP** certs ticked; **105 Yes ticks** (questions 1.1–28.4, cx=293.3) dead-center in each ☐ box.
-- Left blank: section headers, No/N/A boxes, Total/Earned/%Score, grade legend, contacts, signature, assessor block.
-- Verified: cover + pages 2/6/15/16 + 240-dpi crops of pages 2 & 11 — ticks centered, rows correct.
-- **Skill fix (D2):** `inspect_pdf.py` now detects **glyph checkboxes** (☐ U+2610 & kin via `p.chars`) — it previously reported `checkboxes=0` for this form. Re-run finds 14 cert + ~24/page boxes → dir2/dir3 `11_E` auto-detect next pass.
-- Moved to out path, logged D2 + form-family note, set `passes:true`.
+- Reused 11_E form-family (D2 glyph auto-detect) — inspect found 100 Yes-boxes (cx≈293.4) + 14 certs directly, no re-derive. Skipped Workflow per D1, inline path.
+- Stamped: 9 header fields (Nuea Kaset Feed / ข้าวโพดบด Ground Corn / Chiang Mai / 175 emp / 17/06/2026), GMP+HACCP certs, **103 Yes ticks** (100 detected + 3 white describe rows 28.2/28.3/28.4 on p14). Blacked 18.2/18.3 skipped.
+- Verified 4 renders (cover/p1/p9-mid/p14): header on dotted lines, Thai clean, ticks dead-center in Yes col, section/blacked rows untouched, score table blank.
+- Moved to `out`, valid (16 pages, 1.09MB). check.sh: 17/21, dir3/11_E passed; 4 remain (next: dir3/19_E).
 
-Stop. Loop relaunches for `dir1/19_E`.
+No skill script bug. One quirk: filled PDF vanished from blank-form folder right after write (likely a watcher) → re-ran overlay + moved to out atomically; logged in work.json defect field. Stopping.

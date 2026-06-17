@@ -1,21 +1,29 @@
 import { getWritable } from "workflow";
 import { inspect } from "./inspect";
-import { suggestAnswers } from "./suggest";
-import { assemble } from "./assemble";
+import { inspectAcroform } from "./acroform";
+import { suggestAnswers, suggestAcroform } from "./suggest";
+import { assemble, assembleAcroform } from "./assemble";
 import { stamp } from "./stamp";
+import { flattenPdf, renderPdf } from "./python";
 
 /**
  * One event per phase, streamed to the run's default writable. `done` carries
- * everything the UI needs (incl. jobId for the download link), so a client that
- * replays the stream from index 0 rebuilds the full result without extra state.
+ * everything the UI needs (incl. jobId for the download link + rendered preview
+ * page count), so a client that replays the stream from index 0 rebuilds the
+ * full result without extra state.
  */
 export type RunEvent =
-  | { type: "phase"; phase: "inspect" | "suggest" | "assemble" | "stamp"; msg: string }
+  | {
+      type: "phase";
+      phase: "inspect" | "suggest" | "assemble" | "stamp" | "verify";
+      msg: string;
+    }
   | {
       type: "done";
       jobId: string;
       fields_filled: number;
       boxes_ticked: number;
+      pages: number;
       preview: { label: string; value: string }[];
     }
   | { type: "error"; message: string };
@@ -28,8 +36,11 @@ export type FillArgs = {
   jobId: string;
   pdfPath: string;
   anchorsPath: string;
+  acroPath: string;
+  flatPath: string;
   fillsPath: string;
   outPath: string;
+  dir: string;
   stem: string;
 };
 
@@ -44,11 +55,25 @@ async function emit(ev: RunEvent): Promise<void> {
   }
 }
 
+/** Flatten widget annotations so overlay marks aren't occluded (AcroForm path). */
+async function flattenStep(src: string, out: string): Promise<void> {
+  "use step";
+  await flattenPdf(src, out);
+}
+
+/** Render the filled PDF to preview PNGs in the job dir; return the page count. */
+async function renderPreviews(pdf: string, dir: string): Promise<number> {
+  "use step";
+  const pngs = await renderPdf(pdf, dir, "verify", 150);
+  return pngs.length;
+}
+
 /**
- * Durable fill pipeline: Inspect → Suggest → Assemble → Stamp. Each phase emits
- * a progress event; `inspect`/`suggestAnswers`/`stamp` are `"use step"` (full
- * Node — fs, python, AI SDK), while `assemble` is pure and runs inline here.
- * Errors emit a terminal `error` event then rethrow so the run is marked failed.
+ * Durable fill pipeline: Inspect → Suggest → Assemble → Stamp → Verify. An
+ * AcroForm (interactive-fields) PDF takes the flatten-then-overlay branch
+ * (Thai-safe, no widget occlusion); everything else takes the geometric overlay
+ * branch (blanks, checkboxes, rect-grid tables). Each phase emits a progress
+ * event; errors emit a terminal `error` event then rethrow so the run fails.
  */
 export async function fillWorkflow(a: FillArgs): Promise<RunEvent> {
   "use workflow";
@@ -58,31 +83,54 @@ export async function fillWorkflow(a: FillArgs): Promise<RunEvent> {
     await emit({
       type: "phase",
       phase: "inspect",
-      msg: `Found ${ins.fields.length} fields, ${ins.checkboxes.length} checkboxes${
+      msg: `Found ${ins.fields.length} fields, ${ins.checkboxes.length} checkboxes, ${ins.tables.length} tables${
         ins.acroformCount ? ` (${ins.acroformCount} AcroForm fields)` : ""
       }.`,
     });
 
-    await emit({ type: "phase", phase: "suggest", msg: "Generating mock answers…" });
-    const sug = await suggestAnswers(ins);
+    let assembled:
+      | ReturnType<typeof assemble>
+      | ReturnType<typeof assembleAcroform>
+      | null = null;
 
-    await emit({ type: "phase", phase: "assemble", msg: "Assembling overlay…" });
-    const { spec, preview, fieldsFilled, boxesTicked } = assemble(
-      ins,
-      sug,
-      a.pdfPath,
-      a.outPath,
-    );
+    // AcroForm branch — only when interactive fields are actually present and
+    // we can read their geometry; otherwise fall through to the overlay branch.
+    if (ins.acroformCount > 0) {
+      const acro = await inspectAcroform(a.pdfPath, a.acroPath);
+      if (acro.texts.length + acro.buttons.length > 0) {
+        await emit({
+          type: "phase",
+          phase: "suggest",
+          msg: `Generating answers for ${acro.texts.length} fields + ${acro.buttons.length} option groups…`,
+        });
+        const sug = await suggestAcroform(acro);
+
+        await emit({ type: "phase", phase: "assemble", msg: "Flattening widgets + assembling overlay…" });
+        await flattenStep(a.pdfPath, a.flatPath);
+        assembled = assembleAcroform(acro, sug, a.flatPath, a.outPath);
+      }
+    }
+
+    if (!assembled) {
+      await emit({ type: "phase", phase: "suggest", msg: "Generating mock answers…" });
+      const sug = await suggestAnswers(ins);
+      await emit({ type: "phase", phase: "assemble", msg: "Assembling overlay…" });
+      assembled = assemble(ins, sug, a.pdfPath, a.outPath);
+    }
 
     await emit({ type: "phase", phase: "stamp", msg: "Stamping answers onto PDF…" });
-    await stamp(spec, a.fillsPath);
+    await stamp(assembled.spec, a.fillsPath);
+
+    await emit({ type: "phase", phase: "verify", msg: "Rendering filled pages to verify…" });
+    const pages = await renderPreviews(a.outPath, a.dir);
 
     const done: RunEvent = {
       type: "done",
       jobId: a.jobId,
-      fields_filled: fieldsFilled,
-      boxes_ticked: boxesTicked,
-      preview,
+      fields_filled: assembled.fieldsFilled,
+      boxes_ticked: assembled.boxesTicked,
+      pages,
+      preview: assembled.preview,
     };
     await emit(done);
     return done;

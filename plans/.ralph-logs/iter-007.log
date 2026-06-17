@@ -1,0 +1,9 @@
+Done. `dir3/50_E` filled, verified, moved, marked passes.
+
+**dir3/50_E** — Evershining FM-PU-09 6-page scoring matrix:
+- Reused promoted helper `fill_scoring_matrix.py` (D6+D7 family template), fresh mock: Phayao Feed Mill / Ground Corn / Domestic (varied from dir1 Broken Rice, dir2 Soybean Meal)
+- 71 ticks: 69 answer rows in "2" col (cx455.0) + GMP+HACCP certs
+- All 6 pages visually verified — green vector ticks centered, Thai header on dotted leaders, grey/header/legend/summary/signature blank
+- No skill bug. src `01_…` path stale → resolved real NFD folder `แบบสอบถามยังไม่กรอก`
+
+Gate: **CHECK_PASS — 21/21 filled & valid.** Last item. Worklist complete.

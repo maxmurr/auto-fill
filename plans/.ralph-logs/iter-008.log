@@ -1,0 +1,10 @@
+Done. dir2/19_E complete — passes:true, 11/21 done. dir2/19_E no longer flagged (only dir3/19_E shows, expected pending).
+
+**dir2/19_E** — FoodChain ID AcroForm form (19_E family). Reused D3 overlay-on-original fix:
+- Resolved stale src path → real NFD folder on disk.
+- 4 Thai text fields stamped on field `/Rect` (ingredient ข้าวโพดบด / Ground Corn, mfr บริษัท นครสวรรค์ฟีดมิลล์ จำกัด, Q4 crop ข้าวโพด / origin ประเทศไทย) — varies from dir1 Rice Bran.
+- 13 main-question radios ticked by **physical column** (Yes=left, No=right): Q1–Q3 No, Q4 Yes, Q5–Q13 No.
+- Sub-question radios, Q5 tables, Check Box_1, signature block left blank.
+- Verified all rendered pages at 300dpi — every tick dead-center in correct circle, Thai renders clean (no tofu).
+
+No skill script bug (form-family geometry + D3 fix already in skill). Next: dir2/37_E.

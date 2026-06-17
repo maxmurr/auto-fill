@@ -36,12 +36,13 @@ import { isPdfUpload } from "@/lib/pdf";
 import type { RunEvent } from "@/lib/autofill/workflow";
 import { cn } from "@/lib/utils";
 
-type Phase = "inspect" | "suggest" | "assemble" | "stamp";
+type Phase = "inspect" | "suggest" | "assemble" | "stamp" | "verify";
 const PHASES: { key: Phase; label: string }[] = [
   { key: "inspect", label: "Inspect" },
   { key: "suggest", label: "Suggest" },
   { key: "assemble", label: "Assemble" },
   { key: "stamp", label: "Stamp" },
+  { key: "verify", label: "Verify" },
 ];
 
 /** The `done` event's payload (minus its discriminant) is exactly the result. */
@@ -110,6 +111,7 @@ export default function Home() {
         jobId: ev.jobId,
         fields_filled: ev.fields_filled ?? 0,
         boxes_ticked: ev.boxes_ticked ?? 0,
+        pages: ev.pages ?? 0,
         preview: ev.preview ?? [],
       });
       clearStored();
@@ -396,7 +398,7 @@ export default function Home() {
                     <span className="text-xs text-muted-foreground">
                       {busy
                         ? "Running the auto-fill workflow"
-                        : "All four steps complete"}
+                        : "All steps complete"}
                     </span>
                   </div>
                 </div>
@@ -538,6 +540,30 @@ export default function Home() {
               >
                 <DownloadIcon className="size-4" /> Download filled PDF
               </a>
+
+              {result.pages > 0 && (
+                <div className="flex flex-col gap-2">
+                  <span className="flex items-center gap-2 text-sm font-medium">
+                    <ScanLineIcon className="size-4 text-primary" />
+                    Rendered preview
+                    <span className="tabular-nums text-muted-foreground">
+                      ({result.pages} {result.pages === 1 ? "page" : "pages"})
+                    </span>
+                  </span>
+                  <div className="flex snap-x gap-3 overflow-x-auto pb-1">
+                    {Array.from({ length: result.pages }, (_, i) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        key={i}
+                        src={`/api/autofill/${result.jobId}/preview/${i + 1}`}
+                        alt={`Filled page ${i + 1}`}
+                        loading="lazy"
+                        className="h-72 w-auto shrink-0 snap-start rounded-lg border bg-white object-contain shadow-sm"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {result.preview.length > 0 && (
                 <Task defaultOpen className="rounded-xl border bg-muted/30 p-3">

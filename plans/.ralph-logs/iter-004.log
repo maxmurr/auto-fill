@@ -1,1 +1,8 @@
-Execution error
+Done. **dir3/19_E** filled + verified + recorded.
+
+- Item: FoodChain ID Non-GMO AcroForm (D3 family). Resolved real src `แบบสอบถามยังไม่กรอก/19_E.pdf` (stale `01_` prefix).
+- Overlay path (D3): 4 Thai text fields stamped on field `/Rect` + 13 main radios ticked by physical column. Mock = Cassava Chips / Isan Cassava Co. (distinct from dir1 Rice Bran, dir2 Corn). Q4=Yes(left), all others No(right).
+- Verified pages 1–4 @240dpi: ticks on correct circles, sub-radios/Q5 tables/signature blank, Thai renders clean.
+- `out` written + valid on disk (check.sh: `NOT_FLAGGED` pre-edit → now passes:true). No skill bug — defect `none`.
+
+work.json valid. 3 remain → next `dir3/37_E`. Stopping.

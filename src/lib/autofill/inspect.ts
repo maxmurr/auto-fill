@@ -5,6 +5,7 @@ import {
   type Checkbox,
   type Field,
   type InspectResult,
+  type Table,
 } from "./schemas";
 
 /**
@@ -13,6 +14,9 @@ import {
  *   underlines, signature rules) and dropped.
  * - Checkboxes are grouped into rows by vertical proximity (per page); boxes in
  *   the same row are mutually-exclusive options.
+ * - Rect-grid tables (scoring / Yes-No matrices) become {columns, rows}: grey
+ *   header/section bands and label-less rows are dropped so only answerable rows
+ *   remain. The model later picks one column per row to mark.
  */
 export async function inspect(
   pdfPath: string,
@@ -27,6 +31,7 @@ export async function inspect(
 
   const fields: Field[] = [];
   const checkboxes: Checkbox[] = [];
+  const tables: Table[] = [];
 
   for (const pg of raw.pages) {
     for (const b of pg.blanks) {
@@ -53,9 +58,31 @@ export async function inspect(
         page: pg.index,
         cx: c.cx,
         cy: c.cy_pdf,
+        size: c.size,
         label: c.label_right.trim(),
         row: `p${pg.index}r${rowNum}`,
       });
+    }
+
+    for (const t of pg.tables) {
+      const columns = t.columns.map((c, i) => ({
+        id: `${t.id}c${i}`,
+        cx: c.cx,
+        header: c.header.trim(),
+      }));
+      const rows = t.rows
+        .map((r, i) => ({ raw: r, id: `${t.id}r${i}` }))
+        .filter(({ raw }) => !raw.grey && raw.label_left.trim())
+        .map(({ raw, id }) => ({
+          id,
+          page: pg.index,
+          cy: raw.cy_pdf,
+          h: raw.h,
+          label: raw.label_left.trim(),
+        }));
+      if (columns.length >= 2 && rows.length) {
+        tables.push({ id: t.id, page: pg.index, columns, rows });
+      }
     }
   }
 
@@ -68,6 +95,7 @@ export async function inspect(
     pages: raw.pages.map((p) => ({ width: p.width, height: p.height })),
     fields,
     checkboxes,
+    tables,
     acroformCount,
   };
 }

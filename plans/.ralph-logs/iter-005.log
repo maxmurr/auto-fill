@@ -1,0 +1,7 @@
+Done. dir3/37_E verified + on disk (19/21 valid). Remaining `MISSING`: only dir3/38_E + dir3/50_E (still `passes:false` — next iterations). My item complete.
+
+**dir3/37_E** ✓
+- BSCM Foods 16-page rect-grid → reused dir1(D4) verified geometry: recovered dir1's 154 overlay ticks (diagonal stroke pairs → cx,cy), re-stamped 17 identity fields with fresh mock.
+- Mock: บริษัท ล้านนาฟีดมิลล์ จำกัด (Lanna Feed Mill) / ปลายข้าว (Broken Rice) — non-allergen plant feed → reused No-allergen + Yes-quality pattern stays coherent. Varied from dir1(Cassava)/dir2(Rice Bran).
+- Visually verified all 16 pages: identity on dotted lines, allergen→No, quality/labor→Yes, raw-mat allergen/GMO + pest-outbreak→No, signature blank, real vector ticks.
+- No skill bug. Stopping.

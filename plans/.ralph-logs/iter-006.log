@@ -1,0 +1,8 @@
+**dir3/38_E done.** PFI F-CO-063, 13 pages.
+
+- Reused dir2/38_E overlay verbatim — templates byte-identical (extract_text equal all 13 pages), so 143 answer coords transfer exactly. Fresh mock: Phetchabun Feed Ingredient / Cassava Pellets (non-allergen plant feed → keeps allergen ไม่ใช่ coherent).
+- 143 answers (128 ใช่ + 15 ไม่ใช่, centered) + 9 fresh header fields (left-anchored) + 2 cert ticks (HACCP+GMP).
+- Verified: p0 header on dotted lines + certs ticked; p9 allergen all ไม่ใช่ + headers/bars blank; p13 sec14 (14.4=ใช่, rest ไม่ใช่) + signature block blank.
+- check.sh: file valid on disk, 20/21 filled. No skill bug (D5 reuse).
+
+Marked `passes:true`. Remaining: `dir3/50_E` (next iteration). Stop.
