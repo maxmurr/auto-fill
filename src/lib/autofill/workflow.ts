@@ -1,10 +1,12 @@
+import fs from "node:fs/promises";
 import { getWritable } from "workflow";
 import { inspect } from "./inspect";
 import { inspectAcroform } from "./acroform";
 import { suggestAnswers, suggestAcroform } from "./suggest";
-import { assemble, assembleAcroform } from "./assemble";
+import { assemble, assembleAcroform, type PreviewRow } from "./assemble";
 import { stamp } from "./stamp";
 import { flattenPdf, renderPdf } from "./python";
+import type { RunState } from "./schemas";
 
 /**
  * One event per phase, streamed to the run's default writable. `done` carries
@@ -24,7 +26,7 @@ export type RunEvent =
       fields_filled: number;
       boxes_ticked: number;
       pages: number;
-      preview: { label: string; value: string }[];
+      preview: PreviewRow[];
     }
   | { type: "error"; message: string };
 
@@ -39,6 +41,7 @@ export type FillArgs = {
   acroPath: string;
   flatPath: string;
   fillsPath: string;
+  statePath: string;
   outPath: string;
   dir: string;
   stem: string;
@@ -59,6 +62,12 @@ async function emit(ev: RunEvent): Promise<void> {
 async function flattenStep(src: string, out: string): Promise<void> {
   "use step";
   await flattenPdf(src, out);
+}
+
+/** Persist the inputs the re-stamp route replays (branch + normalised inspect/suggest). */
+async function persistState(statePath: string, state: RunState): Promise<void> {
+  "use step";
+  await fs.writeFile(statePath, JSON.stringify(state), "utf8");
 }
 
 /** Render the filled PDF to preview PNGs in the job dir; return the page count. */
@@ -92,6 +101,9 @@ export async function fillWorkflow(a: FillArgs): Promise<RunEvent> {
       | ReturnType<typeof assemble>
       | ReturnType<typeof assembleAcroform>
       | null = null;
+    // Captured alongside `assembled` so the re-stamp route can replay the exact
+    // assemble inputs with edited text values.
+    let state: RunState | null = null;
 
     // AcroForm branch — only when interactive fields are actually present and
     // we can read their geometry; otherwise fall through to the overlay branch.
@@ -108,6 +120,7 @@ export async function fillWorkflow(a: FillArgs): Promise<RunEvent> {
         await emit({ type: "phase", phase: "assemble", msg: "Flattening widgets + assembling overlay…" });
         await flattenStep(a.pdfPath, a.flatPath);
         assembled = assembleAcroform(acro, sug, a.flatPath, a.outPath);
+        state = { branch: "acroform", acro, sug };
       }
     }
 
@@ -116,7 +129,10 @@ export async function fillWorkflow(a: FillArgs): Promise<RunEvent> {
       const sug = await suggestAnswers(ins);
       await emit({ type: "phase", phase: "assemble", msg: "Assembling overlay…" });
       assembled = assemble(ins, sug, a.pdfPath, a.outPath);
+      state = { branch: "overlay", ins, sug };
     }
+
+    if (state) await persistState(a.statePath, state);
 
     await emit({ type: "phase", phase: "stamp", msg: "Stamping answers onto PDF…" });
     await stamp(assembled.spec, a.fillsPath);

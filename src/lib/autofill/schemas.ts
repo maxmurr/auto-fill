@@ -186,3 +186,12 @@ export const AcroSuggestion = z.object({
   ),
 });
 export type AcroSuggestion = z.infer<typeof AcroSuggestion>;
+
+/**
+ * Everything the re-stamp route needs to re-run assemble→stamp with overridden
+ * text values, persisted to `state.json` during the original run. The branch
+ * discriminant records which assemble path produced the fill.
+ */
+export type RunState =
+  | { branch: "overlay"; ins: InspectResult; sug: Suggestion }
+  | { branch: "acroform"; acro: AcroResult; sug: AcroSuggestion };

@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
       acroPath: path.join(dir, "acroform.json"),
       flatPath: path.join(dir, "flat.pdf"),
       fillsPath: path.join(dir, "fills.json"),
+      statePath: path.join(dir, "state.json"),
       outPath: path.join(dir, downloadName),
       dir,
       stem,

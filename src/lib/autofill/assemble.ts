@@ -31,9 +31,21 @@ export type OverlayItem =
 
 export type OverlaySpec = { src: string; out: string; items: OverlayItem[] };
 
+/**
+ * A row in the "what was filled" summary. `kind:"text"` rows carry the source
+ * field/AcroForm `id` so the review UI can edit them and re-stamp by id;
+ * `kind:"check"` rows (ticked boxes, table marks) are read-only.
+ */
+export type PreviewRow = {
+  id?: string;
+  label: string;
+  value: string;
+  kind: "text" | "check";
+};
+
 export type Assembled = {
   spec: OverlaySpec;
-  preview: { label: string; value: string }[];
+  preview: PreviewRow[];
   fieldsFilled: number;
   boxesTicked: number;
 };
@@ -62,7 +74,7 @@ export function assemble(
 
   const textItems: OverlayItem[] = [];
   const checkItems: OverlayItem[] = [];
-  const preview: { label: string; value: string }[] = [];
+  const preview: PreviewRow[] = [];
 
   for (const v of sug.values) {
     const f = fieldById.get(v.id);
@@ -76,7 +88,7 @@ export function assemble(
       font: v.font,
       size: 8.5,
     });
-    preview.push({ label: f.label, value: v.value });
+    preview.push({ id: f.id, label: f.label, value: v.value, kind: "text" });
   }
 
   // De-dupe chosen boxes (model may repeat) and stamp one tick each, sized to
@@ -94,7 +106,7 @@ export function assemble(
       size: clamp(c.size, 8, 14),
       font: "thai",
     });
-    if (c.label) preview.push({ label: c.label, value: "✓" });
+    if (c.label) preview.push({ label: c.label, value: "✓", kind: "check" });
   }
 
   // Table cells: tick a ✓ in an option column, or write a word centered in a
@@ -120,7 +132,7 @@ export function assemble(
         size,
         align: "center",
       });
-      preview.push({ label: r.label, value: m.text });
+      preview.push({ label: r.label, value: m.text, kind: "check" });
     } else {
       checkItems.push({
         page: r.page,
@@ -131,7 +143,7 @@ export function assemble(
         font: "thai",
         mark: "✓",
       });
-      preview.push({ label: r.label, value: col.header || "✓" });
+      preview.push({ label: r.label, value: col.header || "✓", kind: "check" });
     }
   }
 
@@ -159,7 +171,7 @@ export function assembleAcroform(
 
   const textItems: OverlayItem[] = [];
   const checkItems: OverlayItem[] = [];
-  const preview: { label: string; value: string }[] = [];
+  const preview: PreviewRow[] = [];
 
   for (const v of sug.texts) {
     const f = textByName.get(v.name);
@@ -175,7 +187,7 @@ export function assembleAcroform(
       font: v.font,
       size,
     });
-    preview.push({ label: f.label || f.name, value: v.value });
+    preview.push({ id: f.name, label: f.label || f.name, value: v.value, kind: "text" });
   }
 
   const seen = new Set<string>();
@@ -193,7 +205,7 @@ export function assembleAcroform(
       font: "thai",
       mark: "✓",
     });
-    if (f.label) preview.push({ label: f.label, value: "✓" });
+    if (f.label) preview.push({ label: f.label, value: "✓", kind: "check" });
   }
 
   return {
