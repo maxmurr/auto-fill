@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { jobDirPath } from "@/lib/autofill/python";
+import { jobDirPath, VERIFY_PREFIX } from "@/lib/autofill/engine";
 
 export const runtime = "nodejs";
 
@@ -20,8 +20,10 @@ export async function GET(
   const dir = jobDirPath(id);
   let bytes: Buffer;
   try {
-    // pdftoppm names pages verify-1.png, verify-2.png, … (1-based).
-    bytes = await fs.readFile(path.join(dir, `verify-${Number(n)}.png`));
+    // renderPdf names pages <VERIFY_PREFIX>-1.png, -2.png, … (1-based).
+    bytes = await fs.readFile(
+      path.join(dir, `${VERIFY_PREFIX}-${Number(n)}.png`),
+    );
   } catch {
     return new Response("Preview not found", { status: 404 });
   }

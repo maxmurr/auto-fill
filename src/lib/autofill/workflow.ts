@@ -5,7 +5,7 @@ import { inspectAcroform } from "./acroform";
 import { suggestAnswers, suggestAcroform } from "./suggest";
 import { assemble, assembleAcroform, type PreviewRow } from "./assemble";
 import { stamp } from "./stamp";
-import { flattenPdf, renderPdf } from "./python";
+import { flattenPdf, renderPdf, VERIFY_PREFIX, PREVIEW_DPI } from "./engine";
 import type { RunState } from "./schemas";
 
 /**
@@ -73,7 +73,7 @@ async function persistState(statePath: string, state: RunState): Promise<void> {
 /** Render the filled PDF to preview PNGs in the job dir; return the page count. */
 async function renderPreviews(pdf: string, dir: string): Promise<number> {
   "use step";
-  const pngs = await renderPdf(pdf, dir, "verify", 150);
+  const pngs = await renderPdf(pdf, dir, VERIFY_PREFIX, PREVIEW_DPI);
   return pngs.length;
 }
 

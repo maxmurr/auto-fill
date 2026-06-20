@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# swc (build cache)
+/.swc/
+
 # workflow (local world data)
 /.workflow-data/
 

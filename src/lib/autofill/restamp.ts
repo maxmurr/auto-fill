@@ -1,7 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { assemble, assembleAcroform, type Assembled } from "./assemble";
-import { runPy, renderPdf, jobDirPath } from "./python";
+import { overlayFill } from "./pdf/overlay-engine";
+import { renderPdf, jobDirPath, VERIFY_PREFIX, PREVIEW_DPI } from "./engine";
 import type { RunState } from "./schemas";
 
 /**
@@ -43,9 +44,9 @@ export type RestampResult = {
  * Re-run assemble→overlay→render for an existing job with edited text values so
  * the downloaded PDF and preview PNGs reflect the edits. Replays the original
  * inspect/suggest captured in `state.json`, overwriting the filled PDF in place.
- * Calls the python helpers directly (not the durable `stamp` step) so it can run
- * in a normal request handler outside a workflow run. Edits stack: the patched
- * state is written back so a later edit builds on this one.
+ * Calls the overlay/render engine directly (not the durable `stamp` step) so it
+ * can run in a normal request handler outside a workflow run. Edits stack: the
+ * patched state is written back so a later edit builds on this one.
  */
 export async function restamp(
   jobId: string,
@@ -69,8 +70,9 @@ export async function restamp(
       : assembleAcroform(next.acro, next.sug, path.join(dir, "flat.pdf"), outPath);
 
   await fs.writeFile(fillsPath, JSON.stringify(assembled.spec, null, 2), "utf8");
-  await runPy("overlay_fill.py", [fillsPath]);
-  const pages = (await renderPdf(outPath, dir, "verify", 150)).length;
+  await overlayFill(assembled.spec);
+  const pages = (await renderPdf(outPath, dir, VERIFY_PREFIX, PREVIEW_DPI))
+    .length;
 
   await fs.writeFile(statePath, JSON.stringify(next), "utf8");
 

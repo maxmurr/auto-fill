@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { runPy } from "./python";
+import { inspectPdf } from "./pdf/inspect-engine";
 import {
   RawAnchors,
   type Checkbox,
@@ -24,10 +24,11 @@ export async function inspect(
   title: string,
 ): Promise<InspectResult> {
   "use step";
-  await runPy("inspect_pdf.py", [pdfPath, anchorsPath]);
-  const raw = RawAnchors.parse(
-    JSON.parse(await fs.readFile(anchorsPath, "utf8")),
-  );
+  const bytes = new Uint8Array(await fs.readFile(pdfPath));
+  const data = await inspectPdf(pdfPath, bytes);
+  // Persist anchors.json for debug parity with the old Python engine.
+  await fs.writeFile(anchorsPath, JSON.stringify(data, null, 2), "utf8");
+  const raw = RawAnchors.parse(data);
 
   const fields: Field[] = [];
   const checkboxes: Checkbox[] = [];

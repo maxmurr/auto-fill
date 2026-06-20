@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { runPy } from "./python";
+import { acroformInspect } from "./pdf/acroform-engine";
 import { RawAcro, type AcroButton, type AcroResult, type AcroText } from "./schemas";
 
 /**
@@ -13,8 +13,11 @@ export async function inspectAcroform(
   outPath: string,
 ): Promise<AcroResult> {
   "use step";
-  await runPy("acroform_fields.py", [pdfPath, outPath]);
-  const raw = RawAcro.parse(JSON.parse(await fs.readFile(outPath, "utf8")));
+  const bytes = new Uint8Array(await fs.readFile(pdfPath));
+  const data = await acroformInspect(pdfPath, bytes);
+  // Persist acroform.json for debug parity with the old Python engine.
+  await fs.writeFile(outPath, JSON.stringify(data, null, 2), "utf8");
+  const raw = RawAcro.parse(data);
 
   const texts: AcroText[] = [];
   const buttons: AcroButton[] = [];
